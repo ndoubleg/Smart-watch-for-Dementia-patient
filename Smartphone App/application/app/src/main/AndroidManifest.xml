@@ -18,6 +18,7 @@
         android:theme="@style/Theme.SmartWatchForDementiaPatient">
 
         <!-- google map api : value has to be changed to each own api value -->
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyADFLjSoJ1MJoGXCaPS7KQfNMqj_IL778Q"
@@ -36,6 +37,11 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".LocationRegisterActivity" />
         <activity android:name=".LocationSettingActivity" />
+        <activity android:name=".MyPageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
 
     </application>
 

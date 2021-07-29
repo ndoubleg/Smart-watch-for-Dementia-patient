@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -24,7 +25,6 @@ public class LoginActivity extends AppCompatActivity {
         username_et=findViewById(R.id.login_id_et);
         password_et=findViewById(R.id.login_pw_et);
         login_btn=findViewById(R.id.login_bt);
-        signin_btn=findViewById(R.id.signin_bt);
 
         //click the login button
         login_btn.setOnClickListener(new View.OnClickListener() {

@@ -7,9 +7,11 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +37,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
     private double selected_longtitude=126.97800947033107;
 
     private TextView address_tv;
+    private ImageButton back_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,13 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         String addr=getCurrentAddress(selected_latitude,selected_longtitude);
         address_tv.setText(addr);
 
-
+        back_btn=findViewById(R.id.back_btn);
+        back_btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //click complete button
         complete_btn=findViewById(R.id.complete_btn);

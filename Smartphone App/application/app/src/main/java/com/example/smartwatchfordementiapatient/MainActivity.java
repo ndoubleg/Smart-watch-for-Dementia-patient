@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     startActivity(new Intent(getApplicationContext(),LocationSettingActivity.class));
                 }
                 else if(id == R.id.menu_mypage){
-                    Toast.makeText(getApplicationContext(), "go to mypage", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(),MyPageActivity.class));
 
                 }
                 return true;
