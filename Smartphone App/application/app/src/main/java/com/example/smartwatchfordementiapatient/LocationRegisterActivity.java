@@ -101,6 +101,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
                 selected_latitude=latitude;
                 selected_longtitude=longitude;
                 //change location -> address
+                Toast.makeText(getApplicationContext(), ""+latitude+" "+longitude, Toast.LENGTH_SHORT).show();
                 String addr=getCurrentAddress(selected_latitude,selected_longtitude);
                 address_tv.setText(addr);
 
