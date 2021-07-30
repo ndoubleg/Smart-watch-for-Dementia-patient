@@ -6,6 +6,11 @@ THINGS NEEDED TO BE DONE!
 2. Create database for storing username/password for login. 
 	Could use SQL?
 	Figure out how to add this into AWS-EC2.
+
+	Edit:
+	Using MySQL, added a credentials_db.sql file to the AWS-EC2 server.
+	    Need to update syntax to work with MySQL.
+	    Check to see if it actually works with a dummy program?
 -------------------------------------------------------------------------------------------------------------------------
 3. Make the android application check with the credentials database.
 	When a user creates an account:
