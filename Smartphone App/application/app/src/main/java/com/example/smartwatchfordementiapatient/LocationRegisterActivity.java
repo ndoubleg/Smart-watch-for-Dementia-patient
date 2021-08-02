@@ -8,12 +8,16 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +46,12 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
 
     private TextView address_tv;
 
+    private int radius=300;
+    private RadioGroup radioGroup;
+    private RadioButton radio300;
+    private RadioButton radio500;
+    private RadioButton radio1000;
+
     //initial location is seoul
     private double selected_latitude=37.56638872588792;
     private double selected_longtitude=126.97800947033107;
@@ -54,6 +64,14 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_registration);
+
+        //radio group setting
+        radio300=findViewById(R.id.radio_300);
+        radio500=findViewById(R.id.radio_500);
+        radio1000=findViewById(R.id.radio_1000);
+        radioGroup=findViewById(R.id.radiogroup);
+        radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
+
 
         address_tv=findViewById(R.id.address_tv);
         //check location permission
@@ -112,14 +130,14 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
                 mOptions.position(new LatLng(latitude, longitude));
 
                 // 반경 1KM원
-                CircleOptions circle1KM = new CircleOptions().center(new LatLng(latitude, longitude)) //latitude & longitude of point
-                        .radius(1000)      //radius unit : m
+                CircleOptions circle = new CircleOptions().center(new LatLng(latitude, longitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
                         .strokeWidth(0f)  //line width -> 0f = no line
                         .fillColor(Color.parseColor("#885b9fde")); //background color
 
                 // add marker
                 googleMap.addMarker(mOptions);
-                googleMap.addCircle(circle1KM);
+                googleMap.addCircle(circle);
 
             }
         });
@@ -131,14 +149,58 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
 
         // 반경 1KM원
-        CircleOptions circle1KM = new CircleOptions().center(seoul) //latitude & longitude of point
-                .radius(1000)      //radius unit : m
+        CircleOptions circle = new CircleOptions().center(seoul) //latitude & longitude of point
+                .radius(radius)      //radius unit : m
                 .strokeWidth(0f)  //line width -> 0f = no line
                 .fillColor(Color.parseColor("#885b9fde")); //background color
 
-        mMap.addCircle(circle1KM);
+        mMap.addCircle(circle);
 
     }
+
+    //radio group click listener
+    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener = new RadioGroup.OnCheckedChangeListener() {
+        @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i == R.id.radio_300){
+                radius=300;
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+
+            } else if(i == R.id.radio_500){
+                radius=500;
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+            }
+            else if(i==R.id.radio_1000){
+                radius=1000;
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+            }
+        }
+    };
+
 
     //geocoder : longtitude, latitude <-> address
     public String getCurrentAddress( double latitude, double longitude) {
