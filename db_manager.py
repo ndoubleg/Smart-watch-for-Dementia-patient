@@ -5,7 +5,7 @@ from pymysql.cursors import DictCursor
 class DatabaseManager:
     connection = None
     cursor = None
-    DB_PATH = "~/credentials_db.sql"
+    DATABASE = "~/credentials"
 
     def create_connection(self):
         """ Create connection with database """
