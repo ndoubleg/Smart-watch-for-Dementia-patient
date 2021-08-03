@@ -11,7 +11,7 @@ class DatabaseManager:
         """ Create connection with database """
         try:
             print(f"Connecting to database : {self.DB_PATH} ...")
-            self.connection = pymysql.connect(database=self.DB_PATH)
+            self.connection = pymysql.connect(user='ubuntu', database=self.DB_PATH)
             print(f"Successfully connected to database : {self.DB_PATH}")
         except pymysql.Error as e:
             print(e)
