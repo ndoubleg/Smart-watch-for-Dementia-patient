@@ -18,9 +18,10 @@ def handle_gps_location_set():
         longitude = params['longitude']
         latitude = params['latitude']
         my_db = DatabaseManager().instance()
-        my_db.create_connection()
+        my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        my_db.close_connection()
+        my_db.insert_row(DatabaseManager.DB_WATCH_DATA, "SmartWatch", longitude, latitude)
+        my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
         return 'ok'
     return 'failed'
 
