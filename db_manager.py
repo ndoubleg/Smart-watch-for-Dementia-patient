@@ -48,24 +48,24 @@ class DatabaseManager(SingletonInstance):
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]
 
-    def insert_row(self, database, table_name, *column_names):
+    def insert_row(self, database, table_name, *values):
 
         column_str = '('
         column_name_list = self.get_column_names(database, table_name)
         column_str += ", ".join(column_name_list)
         column_str += ')'
 
-        print(column_str)
+        value_str = '('
+        value_str += ", ".join(values)
+        value_str += ')'
 
         query = f"""
         INSERT INTO {table_name} 
-
-        (name, value, note)
-
+        {column_str}
         VALUES
-
-        ('def', 20, 'second');
+        {value_str};
         """
+        print(query)
 
     def get_column_names(self, database, table_name):
         column_name_list = []
@@ -78,6 +78,4 @@ class DatabaseManager(SingletonInstance):
         self.cursor.execute(query)
         for col in self.cursor.fetchall():
             column_name_list.append(col['COLUMN_NAME'])
-            print(col['COLUMN_NAME'])
-        print(column_name_list)
         return column_name_list
