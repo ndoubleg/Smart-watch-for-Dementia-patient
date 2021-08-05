@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-from werkzeug.debug.repr import dump
 
 from db_manager import DatabaseManager
 
@@ -16,6 +15,8 @@ def handle_gps_location_set():
     if request.is_json:
         params = request.get_json()
         print(params['longitude'], params['latitude'])
+        longitude = params['longitude']
+        latitude = params['latitude']
         my_db = DatabaseManager().instance()
         my_db.create_connection()
         my_db.get_cursor()
@@ -34,7 +35,6 @@ def query_patient_location():
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
     test_str = f"longitude: {long_dict['longitude']}\nlatitude: {lati_dict['latitude']}"
     return test_str
-
 
 
 @app.route('/address', methods=['GET', 'POST'])

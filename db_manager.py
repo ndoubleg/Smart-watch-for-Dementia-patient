@@ -47,3 +47,24 @@ class DatabaseManager(SingletonInstance):
         """
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]
+
+    def insert_row(self, table_name, *column_names):
+        query = f"""
+        INSERT INTO {table_name} 
+
+        (name, value, note)
+
+        VALUES
+
+        ('def', 20, 'second');
+        """
+
+    def get_column_names(self, database, table_name):
+        query = f"""
+        SELECT `COLUMN_NAME`
+        FROM `INFORMATION_SCHEMA`.`COLUMNS`
+        WHERE `TABLE_SCHEMA` = {database}
+            AND `TABLE_NAME` = {table_name};
+        """
+        self.cursor.execute(query)
+        print(self.cursor.fetchall())
