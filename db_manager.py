@@ -77,5 +77,7 @@ class DatabaseManager(SingletonInstance):
         """
         self.cursor.execute(query)
         for col in self.cursor.fetchall():
-            column_name_list.append(col.values())
+            column_name_list.append(col['COLUMN_NAME'])
+            print(col['COLUMN_NAME'])
+        print(column_name_list)
         return column_name_list
