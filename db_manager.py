@@ -48,7 +48,7 @@ class DatabaseManager(SingletonInstance):
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]
 
-    def insert_row(self, database, table_name, *values):
+    def insert_row(self, *values, database, table_name):
         float_list = []
 
         column_str = '('
