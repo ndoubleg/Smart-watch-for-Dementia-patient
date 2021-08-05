@@ -17,10 +17,8 @@ def handle_gps_location_set():
         my_db = DatabaseManager().instance()
         my_db.create_connection()
         my_db.get_cursor()
-        print(my_db.cursor)
-        temp_obj = my_db.cursor
         my_db.close_connection()
-        return temp_obj
+        return 'ok'
     return 'failed'
 
 
@@ -30,8 +28,10 @@ def query_patient_location():
     my_db.create_connection()
     my_db.get_cursor()
     print(my_db.cursor)
+    temp_obj = my_db.cursor
     my_db.close_connection()
-    return 'ok'
+    return temp_obj
+
 
 
 @app.route('/address', methods=['GET', 'POST'])
