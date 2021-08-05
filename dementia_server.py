@@ -30,7 +30,7 @@ def query_patient_location():
     print(my_db.cursor)
     temp_obj = my_db.cursor
     my_db.close_connection()
-    return temp_obj
+    return str(temp_obj)
 
 
 
