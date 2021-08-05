@@ -63,8 +63,8 @@ class DatabaseManager(SingletonInstance):
         query = f"""
         SELECT `COLUMN_NAME`
         FROM `INFORMATION_SCHEMA`.`COLUMNS`
-        WHERE `TABLE_SCHEMA` = {database}
-            AND `TABLE_NAME` = {table_name};
+        WHERE `TABLE_SCHEMA` = '{database}'
+            AND `TABLE_NAME` = '{table_name}';
         """
         self.cursor.execute(query)
         print(self.cursor.fetchall())
