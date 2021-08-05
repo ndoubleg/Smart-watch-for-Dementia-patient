@@ -32,8 +32,7 @@ def query_patient_location():
     longitude = my_db.select_last_element_of_column("SmartWatch", "longitude")
     latitude = my_db.select_last_element_of_column("SmartWatch", "latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-    print(longitude)
-    test_str = str(longitude["longitude"], latitude["latitude"])
+    test_str = str(longitude["longitude"])
     return test_str
 
 
