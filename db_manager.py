@@ -41,7 +41,7 @@ class DatabaseManager(SingletonInstance):
     def select_last_element_of_column(self, table_name, column_name):
         """Fetch last record in 'column_name' """
         query = f"""
-        SELECT * 
+        SELECT {column_name} 
         FROM {table_name} 
         WHERE {column_name}
         """
