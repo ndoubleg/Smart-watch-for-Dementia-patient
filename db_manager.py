@@ -49,14 +49,19 @@ class DatabaseManager(SingletonInstance):
         return self.cursor.fetchall()[-1]
 
     def insert_row(self, database, table_name, *values):
+        float_list = []
 
         column_str = '('
         column_name_list = self.get_column_names(database, table_name)
         column_str += ", ".join(column_name_list)
         column_str += ')'
 
+        if isinstance(values[0], float):
+            for flo in values:
+                float_list.append(str(flo))
+
         value_str = '('
-        value_str += ", ".join(values)
+        value_str += ", ".join(float_list)
         value_str += ')'
 
         query = f"""
