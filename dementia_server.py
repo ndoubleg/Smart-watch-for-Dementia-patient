@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request
+from werkzeug.debug.repr import dump
+
 from db_manager import DatabaseManager
 
 app = Flask(__name__)
@@ -30,6 +32,7 @@ def query_patient_location():
     longitude = my_db.select_last_element_of_column("SmartWatch", "longitude")
     latitude = my_db.select_last_element_of_column("SmartWatch", "latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
+    dump(longitude)
     test_str = str(longitude, latitude)
     return test_str
 
