@@ -23,7 +23,7 @@ def handle_gps_location_set():
     return 'failed'
 
 
-@app.route('/query-location', methods=['POST'])
+@app.route('/query-location', methods=['GET', 'POST'])
 def query_patient_location():
     my_db = DatabaseManager().instance()
     my_db.create_connection()
