@@ -70,7 +70,8 @@ class DatabaseManager(SingletonInstance):
         VALUES
         {value_str};
         """
-        self.cursor.execute(query)
+        print(query)
+        # self.cursor.execute(query)
 
     def get_column_names(self, database, table_name):
         column_name_list = []

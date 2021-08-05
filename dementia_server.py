@@ -20,7 +20,10 @@ def handle_gps_location_set():
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        my_db.insert_row(DatabaseManager.DB_WATCH_DATA, "SmartWatch", longitude, latitude)
+        my_db.insert_row(longitude, latitude,
+                         database=DatabaseManager.DB_WATCH_DATA,
+                         table_name="SmartWatch"
+                         )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
         return 'ok'
     return 'failed'
@@ -31,8 +34,8 @@ def query_patient_location():
     my_db = DatabaseManager().instance()
     my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
     my_db.get_cursor()
-    long_dict = my_db.select_last_element_of_column("SmartWatch", "longitude")
-    lati_dict = my_db.select_last_element_of_column("SmartWatch", "latitude")
+    long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
+    lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
     test_str = f"longitude: {long_dict['longitude']}\nlatitude: {lati_dict['latitude']}"
     return test_str
