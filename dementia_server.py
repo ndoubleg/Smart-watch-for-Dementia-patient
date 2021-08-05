@@ -27,10 +27,11 @@ def query_patient_location():
     my_db = DatabaseManager().instance()
     my_db.create_connection()
     my_db.get_cursor()
-    print(my_db.cursor)
-    temp_obj = my_db.cursor
+    longitude = my_db.select_last_element_of_column("SmartWatch", "longitude")
+    latitude = my_db.select_last_element_of_column("SmartWatch", "latitude")
     my_db.close_connection()
-    return str(temp_obj)
+    test_str = str(longitude, latitude)
+    return test_str
 
 
 

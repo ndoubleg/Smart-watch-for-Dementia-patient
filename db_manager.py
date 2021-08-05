@@ -28,7 +28,7 @@ class DatabaseManager(SingletonInstance):
             self.connection.close()
             print(f"Succesfully closed database : {self.DATABASE}")
 
-    def select_column_with_filter(self, column_name, filter_keyword, table_name):
+    def select_column_with_filter(self, table_name, column_name, filter_keyword):
         """Fetch all records with 'filter_keyword' inside 'column_name' """
         query = f"""
         SELECT {column_name} 
@@ -36,3 +36,13 @@ class DatabaseManager(SingletonInstance):
         WHERE {column_name} LIKE '%{filter_keyword}%'
         """
         self.cursor.execute(query)
+
+    def select_last_element_of_column(self, table_name, column_name):
+        """Fetch last record in 'column_name' """
+        query = f"""
+        SELECT {column_name} 
+        FROM {table_name} 
+        ORDER BY {column_name} DESC LIMIT 1
+        """
+        self.cursor.execute(query)
+        return self.cursor.fetchall()[0]
