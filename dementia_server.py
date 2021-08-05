@@ -29,10 +29,10 @@ def query_patient_location():
     my_db = DatabaseManager().instance()
     my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
     my_db.get_cursor()
-    longitude = my_db.select_last_element_of_column("SmartWatch", "longitude")
-    latitude = my_db.select_last_element_of_column("SmartWatch", "latitude")
+    long_dict = my_db.select_last_element_of_column("SmartWatch", "longitude")
+    lati_dict = my_db.select_last_element_of_column("SmartWatch", "latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-    test_str = str(longitude["longitude"])
+    test_str = f"longitude: {long_dict['longitude']}\nlatitude: {lati_dict['latitude']}"
     return test_str
 
 
