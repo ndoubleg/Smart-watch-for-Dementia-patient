@@ -68,6 +68,7 @@ class DatabaseManager(SingletonInstance):
         """
 
     def get_column_names(self, database, table_name):
+        column_name_list = []
         query = f"""
         SELECT `COLUMN_NAME`
         FROM `INFORMATION_SCHEMA`.`COLUMNS`
@@ -75,4 +76,6 @@ class DatabaseManager(SingletonInstance):
             AND `TABLE_NAME` = '{table_name}';
         """
         self.cursor.execute(query)
-        return self.cursor.fetchall().values()
+        for col in self.cursor.fetchall():
+            column_name_list.append(col.values())
+        return column_name_list
