@@ -25,7 +25,7 @@ def handle_gps_location_set():
 @app.route('/query-location', methods=['GET', 'POST'])
 def query_patient_location():
     my_db = DatabaseManager().instance()
-    my_db.create_connection()
+    my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
     my_db.get_cursor()
     longitude = my_db.select_last_element_of_column("SmartWatch", "longitude")
     latitude = my_db.select_last_element_of_column("SmartWatch", "latitude")
