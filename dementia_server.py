@@ -18,8 +18,9 @@ def handle_gps_location_set():
         my_db.create_connection()
         my_db.get_cursor()
         print(my_db.cursor)
+        temp_obj = my_db.cursor
         my_db.close_connection()
-        return 'ok'
+        return temp_obj
     return 'failed'
 
 
