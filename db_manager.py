@@ -1,8 +1,10 @@
 import pymysql
 from pymysql.cursors import DictCursor
 
+from singleton_instance import SingletonInstance
 
-class DatabaseManager:
+
+class DatabaseManager(SingletonInstance):
     connection = None
     cursor = None
     DATABASE = "credentials"
