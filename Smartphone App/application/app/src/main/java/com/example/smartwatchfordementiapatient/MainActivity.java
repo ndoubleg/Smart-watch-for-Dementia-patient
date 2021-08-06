@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 7);
         } catch (IOException ioException) {
-            //네트워크 문제
+            //네트워크 문제w
             return "geocorder not service";
         } catch (IllegalArgumentException illegalArgumentException) {
             //Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
