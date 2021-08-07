@@ -44,10 +44,12 @@ def query_patient_location():
 @app.route('/address', methods=['GET', 'POST'])
 def address_request():
     return render_template("daum.html")
-# for signup with userinfo DB
-@app.route('/signup',methods=['POST'])
+
+
+@app.route('/signup', methods=['POST'])
 def signup():
-    if(request.is_json):
+    """ for signup with userinfo DB """
+    if request.is_json:
         user_my_db = DatabaseManager.instance()
         user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
         user_my_db.get_cursor()
@@ -58,17 +60,20 @@ def signup():
         phone = params['phone']
         pw = params['pw']
         patient_id = params['patient']
-        field = ["id","pw","name","phone","patient_name"]
+        field = ["id", "pw", "name", "phone", "patient_name"]
         
-        user_my_db.insert_with_specific_field(id,pw,name,phone,patient_id,
-                                            table_name="parent_user", field_name = field
-                                            )
+        user_my_db.insert_with_specific_field(id, pw, name, phone, patient_id,
+                                              table_name="parent_user",
+                                              field_name=field
+                                              )
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return 'success'
     return 'failed'
-@app.route('/login',methods=['POST'])
+
+
+@app.route('/login', methods=['POST'])
 def login():
-    if(request.is_json):
+    if request.is_json:
         user_my_db = DatabaseManager.instance()
         user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
         user_my_db.get_cursor()
@@ -76,10 +81,11 @@ def login():
         params = request.get_json()
         login_id = params['id']
         pw = params['pw']
-        result = user_my_db.get_login_info(login_id=login_id,pw=pw,table_name="parent_user")
+        result = user_my_db.get_login_info(login_id=login_id, pw=pw, table_name="parent_user")
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
 #        return result
         result = f"name: {result['name']}"
         return result
+
 
 app.run(host="0.0.0.0", port=5000, debug=True)

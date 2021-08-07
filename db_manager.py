@@ -10,6 +10,7 @@ class DatabaseManager(SingletonInstance):
     DB_CREDENTIALS = "credentials"
     DB_WATCH_DATA = "watch_data"
     DB_USER_DATA = "userinfo"
+
     def create_connection(self, database):
         """ Create connection with database """
         try:
@@ -72,6 +73,7 @@ class DatabaseManager(SingletonInstance):
         """
         print(query)
         # self.cursor.execute(query)
+        # self.connection.commit()
 
     def get_column_names(self, database, table_name):
         column_name_list = []
@@ -112,10 +114,10 @@ class DatabaseManager(SingletonInstance):
         """
         print(query)
         self.cursor.execute(query)
-        self.connection.commit() 
-    def get_login_info(self,login_id,pw,table_name):
-        
-        
+        self.connection.commit()
+
+    def get_login_info(self, login_id, pw, table_name):
+
 #        login_id = '"'+login_id+'"'
 #        pw = '"'+pw+'"'
         query=f"""
