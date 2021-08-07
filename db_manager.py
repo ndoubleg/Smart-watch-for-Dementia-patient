@@ -123,6 +123,6 @@ class DatabaseManager(SingletonInstance):
         FROM {table_name}
         WHERE id="{login_id}" AND pw="{pw}";
         """
-        return query 
+         
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]

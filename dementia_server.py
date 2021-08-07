@@ -10,7 +10,7 @@ def handle_request():
     return "dementia server"
 
 
-@app.route('/append-location', methods=['POST'])
+@app.route('/append-location', methods=['GET', 'POST'])
 def handle_gps_location_set():
     if request.is_json:
         params = request.get_json()
@@ -79,7 +79,8 @@ def login():
         result = user_my_db.get_login_info(login_id=login_id,pw=pw,table_name="parent_user")
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
 #        return result
-        result = f"name: {result['name']}"
+        print(result)
+        #result = f"name: {result['name']}"
         return result
 
 app.run(host="0.0.0.0", port=5000, debug=True)
