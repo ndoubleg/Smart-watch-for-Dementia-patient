@@ -46,14 +46,22 @@ import java.util.Locale;
 
 public class LocationRegisterActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private GpsTracker gpsTracker;
     private GoogleMap mMap;
     private Button complete_btn;
     private TextView address_tv;
     private int radius=300;
+
+    private RadioGroup search_radioGroup;
+    private RadioButton google;
+    private RadioButton daum;
+    private String search_setting="google";
+
     private RadioGroup radioGroup;
     private RadioButton radio300;
     private RadioButton radio500;
     private RadioButton radio1000;
+
     private EditText edit_addr;
     private ImageButton search_btn;
     private Button korea_address;
@@ -77,57 +85,52 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
         setContentView(R.layout.activity_location_registration);
 
         //radio group setting
+        search_radioGroup=findViewById(R.id.search_radiogroup);
+        search_radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener1);
+        google=findViewById(R.id.google_radio);
+        daum=findViewById(R.id.daum_radio);
+
         radio300=findViewById(R.id.radio_300);
         radio500=findViewById(R.id.radio_500);
         radio1000=findViewById(R.id.radio_1000);
         radioGroup=findViewById(R.id.radiogroup);
         radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
+
         edit_addr = findViewById(R.id.address_search_et);
         search_btn = findViewById(R.id.search_btn);
         Geocoder geocoder = new Geocoder(this);
         korea_address = findViewById(R.id.korea_search);
 
-        search_btn.setOnClickListener(new View.OnClickListener(){
+        //현재위치 가져오기
+        gpsTracker = new GpsTracker(getApplicationContext());
+        selected_latitude = gpsTracker.getLatitude();
+        selected_longtitude= gpsTracker.getLongitude();
+        Toast.makeText(getApplicationContext(), "현재위치 \n위도 " + selected_longtitude + "\n경도 " + selected_latitude, Toast.LENGTH_LONG).show();
 
+        search_btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-
-                List<Address> list = null;
-                String str = edit_addr.getText().toString();
-                TextView tv = findViewById(R.id.address_tv);
-                if (str != "") {
-                    try {
-                        list = geocoder.getFromLocationName(
-                                str,
-                                10);
-                        Log.e("test", Integer.toString(list.size()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.e("test", "입출력 오류 - 주소변환시 에러발생");
-                    }
-                    Toast.makeText(getApplicationContext(), Integer.toString(list.size()), Toast.LENGTH_SHORT).show();
-                    if (list != null) {
-                        if (list.size() == 0) {
-                            tv.setText("No Adress information");
-                            mMap.clear();
-                        } else {
-                           /*
-                                tv.setText(list.get(0).getAddressLine(0));
-                                selected_latitude = list.get(0).getLatitude();
-                                selected_longtitude = list.get(0).getLongitude();
+                if(search_setting=="google"){ //구글 주소 검색
+                    List<Address> list = null;
+                    String str = edit_addr.getText().toString();
+                    TextView tv = findViewById(R.id.address_tv);
+                    if (str != "") {
+                        try {
+                            list = geocoder.getFromLocationName(
+                                    str,
+                                    10);
+                            Log.e("test", Integer.toString(list.size()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e("test", "입출력 오류 - 주소변환시 에러발생");
+                        }
+                        Toast.makeText(getApplicationContext(), Integer.toString(list.size()), Toast.LENGTH_SHORT).show();
+                        if (list != null) {
+                            if (list.size() == 0) {
+                                tv.setText("No Adress information");
                                 mMap.clear();
-                                MarkerOptions mOptions = new MarkerOptions();
-                                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
-                                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
-                                        .radius(radius)      //radius unit : m
-                                        .strokeWidth(0f)  //line width -> 0f = no line
-                                        .fillColor(Color.parseColor("#885b9fde")); //background color
-                                mMap.addMarker(mOptions);
-                                mMap.addCircle(circle);
-                                LatLng newArea = new LatLng(selected_latitude, selected_longtitude);
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(newArea));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newArea, 14));
-                            */
+                            } else {
+
                                 ArrayList<Locate> address_list = new ArrayList<>();
                                 for(Address temp : list){
                                     address_list.add(new Locate(temp.getLatitude(),temp.getLongitude()));
@@ -140,27 +143,23 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
 
                             }
 
+                        }
                     }
-                }
-            }
-        });
-
-        korea_address.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Log.i("주소설정페이지", "주소입력창 클릭");
-                int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
-                if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
-
+                }else{ //다음 주소 검색
                     Log.i("주소설정페이지", "주소입력창 클릭");
-                    Intent i = new Intent(getApplicationContext(), AddressApiActivity.class);
-                    // 화면전환 애니메이션 없애기
-                    overridePendingTransition(0, 0);
-                    // 주소결과
-                    startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
+                    int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
+                    if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
 
-                }else {
-                    Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                        Log.i("주소설정페이지", "주소입력창 클릭");
+                        Intent i = new Intent(getApplicationContext(), AddressApiActivity.class);
+                        // 화면전환 애니메이션 없애기
+                        overridePendingTransition(0, 0);
+                        // 주소결과
+                        startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
+
+                    }else {
+                        Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -212,7 +211,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
                 selected_latitude=latitude;
                 selected_longtitude=longitude;
                 //change location -> address
-                Toast.makeText(getApplicationContext(), ""+latitude+" "+longitude, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), ""+latitude+" "+longitude, Toast.LENGTH_SHORT).show();
                 String addr=getCurrentAddress(selected_latitude,selected_longtitude);
                 address_tv.setText(addr);
 
@@ -251,6 +250,16 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
     }
 
     //radio group click listener
+    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener1 = new RadioGroup.OnCheckedChangeListener() {
+        @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i == R.id.google_radio){
+                search_setting="google";
+            } else if(i == R.id.daum_radio){
+                search_setting = "daum";
+                edit_addr.setText("");
+            }
+        }
+    };
     RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener = new RadioGroup.OnCheckedChangeListener() {
         @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
             if(i == R.id.radio_300){
@@ -488,6 +497,9 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
             for (int result : grandResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
                     check_result = false;
+                    gpsTracker = new GpsTracker(getApplicationContext());
+                    selected_latitude = gpsTracker.getLatitude();
+                    selected_longtitude= gpsTracker.getLongitude();
                     break;
                 }
             }

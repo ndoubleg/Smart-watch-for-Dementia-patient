@@ -10,14 +10,14 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="100dp"
         android:background="@color/dark_green"
         android:padding="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location Register"
+            android:text="Location Search"
             android:textColor="@color/white"
             android:layout_alignParentBottom="true"
             android:textSize="20dp"

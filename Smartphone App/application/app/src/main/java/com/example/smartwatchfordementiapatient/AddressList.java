@@ -30,8 +30,6 @@ public class AddressList extends AppCompatActivity {
         Double longitude = locate_data.get(0).getLongitude(); // 경도
 
 
-
-
         final TextView tvSelect = findViewById(R.id.tv_select);
         ListView listView = findViewById(R.id.listView);
         List<Address> list = null;

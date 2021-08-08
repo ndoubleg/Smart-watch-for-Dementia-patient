@@ -12,8 +12,7 @@ public class AddressApiActivity extends AppCompatActivity {
 
     private WebView webView;
 
-    class MyJavaScriptInterface
-    {
+    class MyJavaScriptInterface {
         @JavascriptInterface
         @SuppressWarnings("unused")
         public void processDATA(String data) {
