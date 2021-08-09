@@ -49,7 +49,16 @@
             android:background="@drawable/bg_round_square_lightgray"
             android:padding="10dp"
             android:hint="Password"/>
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SignUp"
+            android:textSize="20dp"
+            android:textColor="@color/light_green"
+            android:gravity="end"
+            android:textStyle="bold"
+            android:id="@+id/signup"
+            android:layout_marginTop="10dp"/>
     </LinearLayout>
 
     <Button

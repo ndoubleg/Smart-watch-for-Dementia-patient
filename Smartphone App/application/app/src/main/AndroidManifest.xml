@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartWatchForDementiaPatient"
         android:usesCleartextTraffic="true">
-        <activity android:name=".AddressList"></activity>
+        <activity android:name=".SignActivity"></activity>
+        <activity android:name=".AddressList" />
         <activity android:name=".AddressApiActivity" /> <!-- google map api : value has to be changed to each own api value -->
         <uses-library
             android:name="org.apache.http.legacy"
