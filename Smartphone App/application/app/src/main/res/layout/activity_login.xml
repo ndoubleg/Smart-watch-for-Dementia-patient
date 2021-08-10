@@ -49,43 +49,41 @@
             android:background="@drawable/bg_round_square_lightgray"
             android:padding="10dp"
             android:hint="Password"/>
-        <TextView
+
+        <Button
+            android:id="@+id/login_bt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SignUp"
-            android:textSize="20dp"
-            android:textColor="@color/light_green"
-            android:gravity="end"
-            android:textStyle="bold"
-            android:id="@+id/signup"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="50dp"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_round_square_lightgreen"
+            android:text="LogIn"
+            />
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="SignUp"-->
+<!--            android:textSize="20dp"-->
+<!--            android:textColor="@color/light_green"-->
+<!--            android:gravity="end"-->
+<!--            android:textStyle="bold"-->
+<!--            android:id="@+id/signup"-->
+<!--            android:layout_marginTop="10dp"/>-->
     </LinearLayout>
 
+
     <Button
-        android:id="@+id/login_bt"
+        android:id="@+id/signup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:background="@drawable/bg_round_square_white"
+        android:text="SignIn"
+        android:textColor="@color/light_green"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="50dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:textColor="@color/white"
-        android:background="@drawable/bg_round_square_lightgreen"
-        android:text="LogIn"
-        android:layout_alignParentBottom="true"
         />
-
-<!--    <Button-->
-<!--        android:id="@+id/signin_bt"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:background="@drawable/bg_round_square_white"-->
-<!--        android:text="SignIn"-->
-<!--        android:textColor="@color/light_green"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginBottom="50dp"-->
-<!--        android:layout_marginLeft="30dp"-->
-<!--        android:layout_marginRight="30dp"-->
-<!--        />-->
 
 </RelativeLayout>
