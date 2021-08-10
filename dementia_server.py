@@ -7,8 +7,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def handle_request():
-    args_dict = request.args.to_dict()
-    return args_dict
+    return request.args["latitude"]
 
 
 @app.route('/append-location', methods=['GET', 'POST'])
