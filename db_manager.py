@@ -125,4 +125,8 @@ class DatabaseManager(SingletonInstance):
         """
          
         self.cursor.execute(query)
-        return self.cursor.fetchall()[-1]
+        result = self.cursor.fetchall()
+        if result:
+            return result[-1]
+        else:
+            return "wrong"

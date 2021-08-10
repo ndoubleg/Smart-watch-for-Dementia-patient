@@ -79,8 +79,11 @@ def login():
         result = user_my_db.get_login_info(login_id=login_id,pw=pw,table_name="parent_user")
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
 #        return result
-        print(result)
-        #result = f"name: {result['name']}"
-        return result
+#        print(result)
+        if result == "wrong":
+            return result
+        else: 
+            return "success"
+        
 
 app.run(host="0.0.0.0", port=5000, debug=True)
