@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def handle_request():
-    return request
+    return request.values
 
 
 @app.route('/append-location', methods=['GET', 'POST'])
