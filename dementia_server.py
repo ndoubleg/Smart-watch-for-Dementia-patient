@@ -12,7 +12,7 @@ def handle_request():
 
 @app.route('/append-location', methods=['GET', 'POST'])
 def handle_gps_location_set():
-    if request.is_json:
+    if request.args:
         params = request.args.to_dict()
         print(params['longitude'], params['latitude'])
         longitude = params['longitude']
@@ -26,7 +26,8 @@ def handle_gps_location_set():
                          )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
         return 'ok'
-    return 'failed'
+    else:
+        return 'failed'
 
 
 @app.route('/query-location', methods=['GET', 'POST'])
