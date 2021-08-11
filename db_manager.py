@@ -53,8 +53,11 @@ class DatabaseManager(SingletonInstance):
     def insert_row(self, *values, database, table_name):
         float_list = []
 
-        column_str = '('
         column_name_list = self.get_column_names(database, table_name)
+        for i, col in enumerate(column_name_list):
+            if col == "id":
+                column_name_list.pop(i)
+        column_str = '('
         column_str += ", ".join(column_name_list)
         column_str += ')'
 
