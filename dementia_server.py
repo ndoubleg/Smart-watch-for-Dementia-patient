@@ -1,3 +1,5 @@
+import sys
+
 from flask import Flask, render_template, request
 
 from db_manager import DatabaseManager
@@ -14,7 +16,7 @@ def handle_request():
 def handle_gps_location_set():
     if request.args:
         params = request.args.to_dict()
-        print(params['longitude'], params['latitude'])
+        print(params['longitude'], params['latitude'], file=sys.stdout)
         longitude = params['longitude']
         latitude = params['latitude']
         my_db = DatabaseManager().instance()
