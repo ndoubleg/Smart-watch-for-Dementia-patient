@@ -56,12 +56,12 @@ class DatabaseManager(SingletonInstance):
         column_str += ", ".join(column_name_list)
         column_str += ')'
 
-        if isinstance(values[0], float):
-            for flo in values:
-                float_list.append(str(flo))
+        # if isinstance(values[0], float):
+        #     for flo in values:
+        #         float_list.append(str(flo))
 
         value_str = '("'
-        value_str += '", "'.join(float_list)
+        value_str += '", "'.join(values)
         value_str += '")'
 
         query = f"""
