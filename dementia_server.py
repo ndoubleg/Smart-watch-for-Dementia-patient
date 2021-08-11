@@ -41,6 +41,7 @@ def query_patient_location():
     long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
     lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
+    print(type(long_dict['longitude']), type(lati_dict['latitude']), file=sys.stderr)
     test_str = f"longitude: {long_dict['longitude']}\nlatitude: {lati_dict['latitude']}"
     return test_str
 
