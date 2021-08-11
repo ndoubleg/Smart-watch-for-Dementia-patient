@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def handle_request():
-    return "Welcome to Smart Watch for Dementia Patients Project Server.<br>This server is for research purpose."
+    return "Welcome to \"Smart Watch for Dementia Patients\" Project Server.<br>This server is for research purpose."
 
 
 @app.route('/append-location', methods=['GET', 'POST'])
