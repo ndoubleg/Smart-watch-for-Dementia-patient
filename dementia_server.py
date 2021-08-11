@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def handle_request():
-    return "Welcome to Smart Watch Dementia "
+    return "Welcome to Smart Watch for Dementia Patients Project Server.<br>This server is for research purpose."
 
 
 @app.route('/append-location', methods=['GET', 'POST'])
@@ -37,13 +37,14 @@ def query_patient_location():
     long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
     lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-    test_str = f"longitude: {long_dict['longitude']}\nlatitude: {lati_dict['latitude']}"
+    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
     return test_str
 
 
 @app.route('/address', methods=['GET', 'POST'])
 def address_request():
     return render_template("daum.html")
+
 # for signup with userinfo DB
 @app.route('/signup',methods=['POST'])
 def signup():
