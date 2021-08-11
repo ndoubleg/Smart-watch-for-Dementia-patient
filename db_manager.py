@@ -66,14 +66,14 @@ class DatabaseManager(SingletonInstance):
         value_str += '", "'.join(values)
         value_str += '")'
 
-        print(value_str, file=sys.stderr)
-
         query = f"""
         INSERT INTO {table_name} 
         {column_str}
         VALUES
         {value_str};
         """
+
+        print(query, file=sys.stderr)
         self.cursor.execute(query)
 
     def get_column_names(self, database, table_name):
