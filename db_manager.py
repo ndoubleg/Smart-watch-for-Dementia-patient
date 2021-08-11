@@ -75,6 +75,7 @@ class DatabaseManager(SingletonInstance):
 
         print(query, file=sys.stderr)
         self.cursor.execute(query)
+        self.connection.commit()
 
     def get_column_names(self, database, table_name):
         column_name_list = []
