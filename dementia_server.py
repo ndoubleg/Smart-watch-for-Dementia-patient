@@ -7,30 +7,26 @@ from db_manager import DatabaseManager
 app = Flask(__name__)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def handle_request():
-    return request.args["latitude"]
+    return "Welcome to Smart Watch Dementia "
 
 
 @app.route('/append-location', methods=['GET', 'POST'])
 def handle_gps_location_set():
     if request.args:
         params = request.args.to_dict()
-        print(params['longitude'], params['latitude'], file=sys.stderr)
-        print(type(params['longitude']), type(params['latitude']), file=sys.stderr)
-        longitude = params['longitude']
-        latitude = params['latitude']
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        my_db.insert_row(longitude, latitude,
+        my_db.insert_row(params['longitude'], params['latitude'],
                          database=DatabaseManager.DB_WATCH_DATA,
                          table_name="SmartWatch"
                          )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-        return 'ok'
+        return f"Sucessfully added following data:\nlongitude: {params['longitude']}\nlatitude: {params['latitude']}"
     else:
-        return 'failed'
+        return 'Failed to get longitude & latitude parameters.'
 
 
 @app.route('/query-location', methods=['GET', 'POST'])

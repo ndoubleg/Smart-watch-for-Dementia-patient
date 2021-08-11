@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 import pymysql
 from pymysql.cursors import DictCursor
@@ -12,14 +13,15 @@ class DatabaseManager(SingletonInstance):
     DB_CREDENTIALS = "credentials"
     DB_WATCH_DATA = "watch_data"
     DB_USER_DATA = "userinfo"
+
     def create_connection(self, database):
         """ Create connection with database """
         try:
-            print(f"Connecting to database : {database} ...")
+            print(f"Connecting to database : {database} ...", file=sys.stderr)
             self.connection = pymysql.connect(user="ubuntu", password='', database=database)
-            print(f"Successfully connected to database : {database}")
-        except pymysql.Error as e:
-            print(e)
+            print(f"Successfully connected to database : {database}", file=sys.stderr)
+        except pymysql.Error:
+            traceback.print_exc(file=sys.stderr)
 
     def get_cursor(self):
         """ Create cursor """
@@ -29,7 +31,7 @@ class DatabaseManager(SingletonInstance):
         """ Close connection to database """
         if self.connection is not None:
             self.connection.close()
-            print(f"Succesfully closed database : {database}")
+            print(f"Succesfully closed database : {database}", file=sys.stderr)
 
     def select_column_with_filter(self, table_name, column_name, filter_keyword):
         """Fetch all records with 'filter_keyword' inside 'column_name' """
@@ -51,8 +53,8 @@ class DatabaseManager(SingletonInstance):
         return self.cursor.fetchall()[-1]
 
     def insert_row(self, *values, database, table_name):
-        float_list = []
-
+        """ Insert new row with some values into table_name at database.\n
+        You should pass values in order with table columns. """
         column_name_list = self.get_column_names(database, table_name)
         for i, col in enumerate(column_name_list):
             if col == "id":
@@ -60,10 +62,6 @@ class DatabaseManager(SingletonInstance):
         column_str = '('
         column_str += ", ".join(column_name_list)
         column_str += ')'
-
-        # if isinstance(values[0], float):
-        #     for flo in values:
-        #         float_list.append(str(flo))
 
         value_str = "('"
         value_str += "', '".join(values)
@@ -75,9 +73,8 @@ class DatabaseManager(SingletonInstance):
         VALUES
         {value_str};
         """
-
-        print(query, file=sys.stderr)
         self.cursor.execute(query)
+        print(f"Inserted values {value_str} into columns {column_str} at table {table_name}", file=sys.stderr)
         self.connection.commit()
 
     def get_column_names(self, database, table_name):
