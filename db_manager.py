@@ -60,9 +60,9 @@ class DatabaseManager(SingletonInstance):
             for flo in values:
                 float_list.append(str(flo))
 
-        value_str = '('
-        value_str += ", ".join(float_list)
-        value_str += ')'
+        value_str = '("'
+        value_str += '", "'.join(float_list)
+        value_str += '")'
 
         query = f"""
         INSERT INTO {table_name} 
