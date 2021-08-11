@@ -85,7 +85,7 @@ class DatabaseManager(SingletonInstance):
             AND `TABLE_NAME` = '{table_name}';
         """
         self.cursor.execute(query)
-        for col in self.cursor.fetchall():
+        for col in reversed(self.cursor.fetchall()):
             column_name_list.append(col['COLUMN_NAME'])
         return column_name_list
 
