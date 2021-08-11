@@ -24,7 +24,7 @@ def handle_gps_location_set():
                          table_name="SmartWatch"
                          )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-        return f"Sucessfully added following data:\nlongitude: {params['longitude']}\nlatitude: {params['latitude']}"
+        return f"Sucessfully added following data:<br>longitude: {params['longitude']}<br>latitude: {params['latitude']}"
     else:
         return 'Failed to get longitude & latitude parameters.'
 
