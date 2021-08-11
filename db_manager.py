@@ -1,3 +1,5 @@
+import sys
+
 import pymysql
 from pymysql.cursors import DictCursor
 
@@ -63,6 +65,8 @@ class DatabaseManager(SingletonInstance):
         value_str = '("'
         value_str += '", "'.join(values)
         value_str += '")'
+
+        print(value_str, file=sys.stderr)
 
         query = f"""
         INSERT INTO {table_name} 
