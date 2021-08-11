@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -41,6 +42,22 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Getting the Location Address.
@@ -134,6 +151,139 @@ public class MainActivity extends AppCompatActivity {
         updateUIWidgets();
 
         handler.post(runnable);
+
+        RequestThread thread = new RequestThread();
+        thread.start();
+    }
+
+//    void test_server() {
+//        String url = "http://my-json-feed";
+//
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+//                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+//
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        textView.setText("Response: " + response.toString());
+//                    }
+//                }, new Response.ErrorListener() {
+//
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        // TODO: Handle error
+//
+//                    }
+//                });
+//
+//        // Access the RequestQueue through your singleton class.
+//        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+//
+//    }
+
+    void test_server() {
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("latitude", Double.toString(mLastLocation.getLatitude()));
+            postData.put("longitude", Double.toString(mLastLocation.getLongitude()));
+            Log.d(TAG,"sended request");
+            Log.d(TAG,postData.toString());
+
+            new SendDeviceDetails().execute("http://3.35.149.182:5000/", postData.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class SendDeviceDetails extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String data = "";
+
+            HttpURLConnection httpURLConnection = null;
+            try {
+
+                httpURLConnection = (HttpURLConnection) new URL(params[0]).openConnection();
+                httpURLConnection.setRequestMethod("GET");
+
+                httpURLConnection.setDoOutput(true);
+
+                DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
+                wr.writeBytes(params[1]);
+                wr.flush();
+                wr.close();
+
+                InputStream in = httpURLConnection.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(in);
+
+                int inputStreamData = inputStreamReader.read();
+                while (inputStreamData != -1) {
+                    char current = (char) inputStreamData;
+                    inputStreamData = inputStreamReader.read();
+                    data += current;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (httpURLConnection != null) {
+                    httpURLConnection.disconnect();
+                }
+            }
+
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Log.d("Result from server", result); // this is expecting a response code to be sent from your server upon receiving the POST data
+        }
+    }
+
+    class RequestThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                URL url = new URL("http://3.35.149.182:5000/");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                if(urlConnection != null){
+                    urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setDoInput(true);
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setChunkedStreamingMode(0);
+
+                    int resCode = urlConnection.getResponseCode();
+                    if(resCode == HttpURLConnection.HTTP_OK){
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                        String line = null;
+                        while(true){
+                            line = reader.readLine();
+                            if(line == null)
+                                break;
+                            Log.d(TAG,line);
+                        }
+                        reader.close();
+                    }
+
+                    String data = Double.toString(mLastLocation.getLatitude());
+
+                    OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                    writer.write(data);
+                    writer.flush();
+                    writer.close();
+                    out.close();
+
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG,"No Network");
+            }
+        }
     }
 
     @Override
@@ -172,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
 
 
-            handler.postDelayed(this, 1000);
+            handler.postDelayed(this, 5000);
 
             if (mLastLocation != null) {
                 startIntentService();
@@ -180,6 +330,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             Log.d("Handlers", "Called on main thread");
+
+
 
             // If we have not yet retrieved the user location, we process the user's request by setting
             // mAddressRequested to true. As far as the user is concerned, pressing the Fetch Address button
@@ -209,6 +361,8 @@ public class MainActivity extends AppCompatActivity {
 
         mLatitudeText.invalidate();
         mLongitudeText.invalidate();
+
+        test_server();
 
         // Pass the result receiver as an extra to the service.
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
