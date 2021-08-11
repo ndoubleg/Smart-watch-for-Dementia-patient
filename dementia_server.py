@@ -13,7 +13,7 @@ def handle_request():
 @app.route('/append-location', methods=['GET', 'POST'])
 def handle_gps_location_set():
     if request.is_json:
-        params = request.get_json()
+        params = request.args.to_dict()
         print(params['longitude'], params['latitude'])
         longitude = params['longitude']
         latitude = params['latitude']
