@@ -16,7 +16,7 @@ def handle_request():
 def handle_gps_location_set():
     if request.args:
         params = request.args.to_dict()
-        print(params['longitude'], params['latitude'], file=sys.stdout)
+        print(params['longitude'], params['latitude'], file=sys.stderr)
         longitude = params['longitude']
         latitude = params['latitude']
         my_db = DatabaseManager().instance()
