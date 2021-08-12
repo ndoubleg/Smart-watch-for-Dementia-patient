@@ -9,7 +9,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,16 +37,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private TextView current_address_tv;
 
-    private GoogleMap mMap;
+    public static GoogleMap main_Map;
 
     private NavigationView navigationView;
     private DrawerLayout drawer_layout;
     private ImageButton menu_btn;
-
+    private Intent serviceIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PowerManager pm = (PowerManager) getApplicationContext().getSystemService(POWER_SERVICE);
 
         //google map initial setting
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -88,6 +91,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        boolean isWhiteListing = false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            isWhiteListing = pm.isIgnoringBatteryOptimizations(getApplicationContext().getPackageName());
+        }
+        if (!isWhiteListing) {
+            Intent intent = new Intent();
+            intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+            startActivity(intent);
+        }
+
+        if (RealService.serviceIntent==null) {
+            serviceIntent = new Intent(this, RealService.class);
+            startService(serviceIntent);
+        } else {
+            serviceIntent = RealService.serviceIntent;//getInstance().getApplication();
+            Toast.makeText(getApplicationContext(), "already", Toast.LENGTH_LONG).show();
+        }
+
+
     }
 
 
@@ -95,15 +118,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //google map setting
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        main_Map = googleMap;
 
         //latitude, longitude should be changed to patient's current location
         //location should be get from server db
 
         LatLng seoul = new LatLng(40.42317701770357, -86.92853180767158);
-        mMap.addMarker(new MarkerOptions().position(seoul).title("seoul"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
+        main_Map.addMarker(new MarkerOptions().position(seoul).title("seoul"));
+        main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
+        main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
 
         current_address_tv.setText(getCurrentAddress(40.42317701770357, -86.92853180767158));
 
@@ -138,6 +161,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //return address.getAddressLine(0).toString()+"\n";
         return addr;
     }
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (serviceIntent!=null) {
+            stopService(serviceIntent);
+            serviceIntent = null;
+        }
+    }
 
 }

@@ -127,13 +127,13 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e("asdddddd",Integer.toString(LOGIN_SUCCESS));
                 if(LoginActivity.LOGIN_SUCCESS==1){
                     Log.e("asdddddddd","success");
-                    Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"SUCCESS",Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(),LocationRegisterActivity.class);
                     startActivity(intent);
                     //finish();
                 }else{
                     Log.e("asdddddddd","fail");
-                    Toast.makeText(LoginActivity.this,"FAIL",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"FAIL",Toast.LENGTH_SHORT).show();
                 }
 
 

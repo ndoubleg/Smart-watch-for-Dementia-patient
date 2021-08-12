@@ -105,7 +105,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
         gpsTracker = new GpsTracker(getApplicationContext());
         selected_latitude = gpsTracker.getLatitude();
         selected_longtitude= gpsTracker.getLongitude();
-        Toast.makeText(getApplicationContext(), "현재위치 \n위도 " + selected_longtitude + "\n경도 " + selected_latitude, Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(), "현재위치 \n위도 " + selected_longtitude + "\n경도 " + selected_latitude, Toast.LENGTH_LONG).show();
 
         search_btn.setOnClickListener(new View.OnClickListener(){
             @Override

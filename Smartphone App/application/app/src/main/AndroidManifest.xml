@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!--for background service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -15,7 +19,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartWatchForDementiaPatient"
         android:usesCleartextTraffic="true">
-        <activity android:name=".SignActivity"></activity>
+        <activity android:name=".PatientLocate"></activity>
+        <activity android:name=".SignActivity" />
         <activity android:name=".AddressList" />
         <activity android:name=".AddressApiActivity" /> <!-- google map api : value has to be changed to each own api value -->
         <uses-library
@@ -33,7 +38,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".LocationRegisterActivity" />
         <activity android:name=".LocationSettingActivity" />
@@ -42,6 +53,29 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
+        <service
+            android:name=".RealService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".RestartService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver android:name=".AlarmRecever"/>
+
+        <receiver
+            android:name=".RebootReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
