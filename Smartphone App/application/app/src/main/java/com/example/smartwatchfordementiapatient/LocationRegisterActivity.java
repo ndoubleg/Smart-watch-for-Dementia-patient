@@ -274,6 +274,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
 
                 mMap.addMarker(mOptions);
                 mMap.addCircle(circle);
+                Toast.makeText(getApplicationContext(), "range: 300m", Toast.LENGTH_SHORT).show();
 
             } else if(i == R.id.radio_500){
                 radius=500;
@@ -286,6 +287,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
                         .fillColor(Color.parseColor("#885b9fde")); //background color
                 mMap.addMarker(mOptions);
                 mMap.addCircle(circle);
+                Toast.makeText(getApplicationContext(), "range: 500m", Toast.LENGTH_SHORT).show();
             }
             else if(i==R.id.radio_1000){
                 radius=1000;
@@ -298,6 +300,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
                         .fillColor(Color.parseColor("#885b9fde")); //background color
                 mMap.addMarker(mOptions);
                 mMap.addCircle(circle);
+                Toast.makeText(getApplicationContext(), "range: 1km", Toast.LENGTH_SHORT).show();
             }
         }
     };
