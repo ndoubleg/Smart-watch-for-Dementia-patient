@@ -127,8 +127,13 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e("asdddddd",Integer.toString(LOGIN_SUCCESS));
                 if(LoginActivity.LOGIN_SUCCESS==1){
                     Log.e("asdddddddd","success");
+<<<<<<< HEAD
                     Toast.makeText(getApplicationContext(),"SUCCESS",Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(),LocationRegisterActivity.class);
+=======
+                    Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+>>>>>>> 681ef84820591021df9677fb8a85167119aad35a
                     startActivity(intent);
                     //finish();
                 }else{

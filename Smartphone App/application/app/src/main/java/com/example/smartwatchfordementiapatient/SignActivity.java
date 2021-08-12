@@ -101,8 +101,8 @@ public class SignActivity extends AppCompatActivity {
                     RequestThread thread = new RequestThread();
                     thread.start();
                     Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(getApplicationContext(),LoginActivity.class);
-                    startActivity(i);
+                    Intent intent = new Intent(getApplicationContext(),LocationRegisterActivity.class);
+                    startActivity(intent);
                     finish();
 
                 }catch(Exception e){
