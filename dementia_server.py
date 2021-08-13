@@ -15,7 +15,7 @@ def handle_request():
 
 @app.route('/append-location', methods=['POST'])
 def handle_gps_location_set():
-    print(request.is_json, file=sys.stderr)
+    print(request.is_json)
     if request.is_json:
         params = request.get_json()
         my_db = DatabaseManager().instance()
