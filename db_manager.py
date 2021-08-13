@@ -123,7 +123,7 @@ class DatabaseManager(SingletonInstance):
 #        login_id = '"'+login_id+'"'
 #        pw = '"'+pw+'"'
         query=f"""
-        SELECT name
+        SELECT id, name, phone, patient_locate_latitude, patient_locate_longitude,patient_range
         FROM {table_name}
         WHERE id="{login_id}" AND pw="{pw}";
         """

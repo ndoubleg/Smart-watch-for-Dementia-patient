@@ -1,5 +1,5 @@
 import sys
-
+import json
 from flask import Flask, render_template, request
 
 from db_manager import DatabaseManager
@@ -38,7 +38,14 @@ def query_patient_location():
     long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
     lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
     my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
+
+#    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
+    test_str = {
+            'longitude': long_dict['longitude'],
+            'latitude' : lati_dict['latitude']
+            }
+    test_str = json.dumps(test_str)
+    print(test_str)
     return test_str
 
 
@@ -59,10 +66,15 @@ def signup():
         name = params['name']
         phone = params['phone']
         pw = params['pw']
+
         patient_id = params['patient']
-        field = ["id","pw","name","phone","patient_name"]
+        latitude = params['selected_latitude']
+        longitude = params['selected_longitude']
+        patient_range = params['range']
+        field = ["id","pw","name","phone","patient_name","patient_locate_latitude","patient_locate_longitude","patient_range"]
+
         
-        user_my_db.insert_with_specific_field(id,pw,name,phone,patient_id,
+        user_my_db.insert_with_specific_field(id,pw,name,phone,patient_id,latitude,longitude,patient_range,
                                             table_name="parent_user", field_name = field
                                             )
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
@@ -85,7 +97,16 @@ def login():
         if result == "wrong":
             return result
         else: 
-            return "success"
+            return_result = {
+                'id' : result['id'],
+                'name' : result['name'],
+                'phone' : result['phone'],
+                'latitude' : result['patient_locate_latitude'],
+                'longitude' : result['patient_locate_longitude'],
+                'patient_range' : result['patient_range']
+            }
+            print('asdddddd', return_result)
+            return return_result
         
 
 app.run(host="0.0.0.0", port=5000, debug=True)
