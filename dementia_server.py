@@ -13,7 +13,7 @@ def handle_request():
            "This server is for research purpose."
 
 
-@app.route('/append-location', methods=['GET', 'POST'])
+@app.route('/append-location', methods=['POST'])
 def handle_gps_location_set():
     print(request.is_json, file=sys.stderr)
     if request.is_json:
