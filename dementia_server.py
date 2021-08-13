@@ -13,10 +13,10 @@ def handle_request():
            "This server is for research purpose."
 
 
-@app.route('/append-location', methods=['GET', 'POST'])
+@app.route('/append-location', methods=['POST'])
 def handle_gps_location_set():
-    if request.args:
-        params = request.args.to_dict()
+    if request.is_json:
+        params = request.get_json()
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
