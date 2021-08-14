@@ -52,7 +52,7 @@ class DatabaseManager(SingletonInstance):
         """
         print(f"select_column_matches query : {query}", file=sys.stderr)
         self.cursor.execute(query)
-        return self.cursor.fetchone()
+        print(self.cursor.fetchone(), file=sys.stderr)
 
     def select_last_element_of_column(self, table_name, column_name):
         """Fetch last record in 'column_name' """
