@@ -42,12 +42,12 @@ class DatabaseManager(SingletonInstance):
         """
         self.cursor.execute(query)
 
-    def select_column_matches(self, match_keyword, column_name, table_name):
+    def select_column_matches(self, finding_column, match_keyword, column_name, table_name):
         """Fetch all records which exactly matches 'match_keyword' inside 'column_name' """
         query = f"""
         SELECT {column_name} 
         FROM {table_name} 
-        WHERE {column_name} = '{match_keyword}'
+        WHERE {finding_column} = '{match_keyword}'
         """
         print(f"select_column_matches query : {query}", file=sys.stderr)
         self.cursor.execute(query)
