@@ -33,31 +33,33 @@ class DatabaseManager(SingletonInstance):
             self.connection.close()
             print(f"Succesfully closed database : {database}", file=sys.stderr)
 
-    def select_column_with_filter(self, table_name, column_name, filter_keyword):
+    def select_column_with_filter(self, filter_keyword, finding_column, selecting_column, table_name):
         """Fetch all records with 'filter_keyword' inside 'column_name' """
         query = f"""
-        SELECT {column_name} 
+        SELECT {selecting_column} 
         FROM {table_name} 
-        WHERE {column_name} LIKE '%{filter_keyword}%'
+        WHERE {finding_column} LIKE '%{filter_keyword}%';
         """
         self.cursor.execute(query)
+        return self.cursor.fetchone()
 
     def select_column_matches(self, match_keyword, finding_column, selecting_column, table_name):
         """Fetch all records which exactly matches 'match_keyword' inside 'column_name' """
         query = f"""
         SELECT {selecting_column} 
         FROM {table_name} 
-        WHERE {finding_column} = '{match_keyword}'
+        WHERE {finding_column} = '{match_keyword}';
         """
         print(f"select_column_matches query : {query}", file=sys.stderr)
         self.cursor.execute(query)
+        return self.cursor.fetchone()
 
     def select_last_element_of_column(self, table_name, column_name):
         """Fetch last record in 'column_name' """
         query = f"""
         SELECT {column_name} 
         FROM {table_name} 
-        WHERE {column_name}
+        WHERE {column_name};
         """
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]
