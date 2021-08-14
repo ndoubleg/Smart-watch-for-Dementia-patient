@@ -68,15 +68,14 @@ def query_patient_location():
                                                                 table_name="SmartWatch"
                                                                 )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-
-    #    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
-    #     test_str = {
-    #             'longitude': long_dict['longitude'],
-    #             'latitude' : lati_dict['latitude']
-    #             }
-    #     test_str = json.dumps(test_str)
-    #     print(test_str)
-    #     return test_str
+        return_dict = {
+                'longitude': long_dict['longitude'],
+                'latitude' : lati_dict['latitude']
+                }
+        result = json.dumps(return_dict)
+        return result
+    else:
+        return "Failed to query patient's last location."
 
 
 @app.route('/address', methods=['GET', 'POST'])
