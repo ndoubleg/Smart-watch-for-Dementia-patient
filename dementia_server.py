@@ -21,7 +21,7 @@ def handle_gps_location_set():
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        my_db.insert_row(params['longitude'], params['latitude'],
+        my_db.insert_row(params['parent_id'], params['longitude'], params['latitude'],
                          database=DatabaseManager.DB_WATCH_DATA,
                          table_name="SmartWatch"
                          )
@@ -51,21 +51,24 @@ def handle_gps_location_set():
 
 @app.route('/query-location', methods=['GET', 'POST'])
 def query_patient_location():
-    my_db = DatabaseManager().instance()
-    my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
-    my_db.get_cursor()
-    long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
-    lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
-    my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
+    if request.is_json:
+        params = request.get_json()
+        user_id = params['id']
+        my_db = DatabaseManager().instance()
+        my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
+        my_db.get_cursor()
+        long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
+        lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
+        my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
 
-#    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
-    test_str = {
-            'longitude': long_dict['longitude'],
-            'latitude' : lati_dict['latitude']
-            }
-    test_str = json.dumps(test_str)
-    print(test_str)
-    return test_str
+    #    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
+        test_str = {
+                'longitude': long_dict['longitude'],
+                'latitude' : lati_dict['latitude']
+                }
+        test_str = json.dumps(test_str)
+        print(test_str)
+        return test_str
 
 
 @app.route('/address', methods=['GET', 'POST'])
