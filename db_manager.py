@@ -49,6 +49,7 @@ class DatabaseManager(SingletonInstance):
         FROM {table_name} 
         WHERE {column_name} = '{match_keyword}'
         """
+        print(f"select_column_matches query : {query}", file=sys.stderr)
         self.cursor.execute(query)
 
     def select_last_element_of_column(self, table_name, column_name):
