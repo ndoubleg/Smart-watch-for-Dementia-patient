@@ -58,8 +58,16 @@ def query_home_location():
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
-        long_dict = my_db.select_column_matches(user_id, table_name="parent_user", column_name="patient_locate_longitude")
-        lati_dict = my_db.select_column_matches(user_id, table_name="parent_user", column_name="patient_locate_latitude")
+        long_dict = my_db.select_column_matches(user_id,
+                                                finding_column="id",
+                                                table_name="parent_user",
+                                                column_name="patient_locate_longitude"
+                                                )
+        lati_dict = my_db.select_column_matches(user_id,
+                                                finding_column="id",
+                                                table_name="parent_user",
+                                                column_name="patient_locate_latitude"
+                                                )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return_str = {
                 'longitude': long_dict['patient_locate_longitude'],
