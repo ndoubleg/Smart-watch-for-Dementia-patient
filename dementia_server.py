@@ -69,14 +69,13 @@ def query_home_location():
                                                 table_name="parent_user"
                                                 )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
-        print(long_dict, lati_dict)
-        # return_str = {
-        #         'longitude': long_dict['patient_locate_longitude'],
-        #         'latitude' : lati_dict['patient_locate_latitude']
-        #         }
-        # result = json.dumps(return_str)
-        # print(result)
-        # return result
+        return_dict = {
+                'longitude': long_dict['patient_locate_longitude'],
+                'latitude' : lati_dict['patient_locate_latitude']
+                }
+        result = json.dumps(return_dict)
+        print(result)
+        return result
     else:
         return 'Failed to query home location.'
 
