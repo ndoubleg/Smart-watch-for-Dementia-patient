@@ -68,36 +68,6 @@ def query_patient_location():
     return test_str
 
 
-@app.route('/query-home', methods=['POST'])
-def query_home_location():
-    print(request.is_json)
-    if request.is_json:
-        user_id = request.get_json()['id']
-        my_db = DatabaseManager().instance()
-        my_db.create_connection(DatabaseManager.DB_USER_DATA)
-        my_db.get_cursor()
-        long_dict = my_db.select_column_matches(user_id,
-                                                finding_column="id",
-                                                selecting_column="patient_locate_longitude",
-                                                table_name="parent_user"
-                                                )
-        lati_dict = my_db.select_column_matches(user_id,
-                                                finding_column="id",
-                                                selecting_column="patient_locate_latitude",
-                                                table_name="parent_user"
-                                                )
-        my_db.close_connection(DatabaseManager.DB_USER_DATA)
-        return_dict = {
-                'longitude': long_dict['patient_locate_longitude'],
-                'latitude' : lati_dict['patient_locate_latitude']
-                }
-        result = json.dumps(return_dict)
-        print(result)
-        return result
-    else:
-        return 'Failed to query home location.'
-
-
 @app.route('/address', methods=['GET', 'POST'])
 def address_request():
     return render_template("daum.html")
