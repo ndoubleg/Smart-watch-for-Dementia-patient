@@ -40,6 +40,8 @@ class DatabaseManager(SingletonInstance):
         FROM {table_name} 
         WHERE {finding_column} = '{match_keyword}';
         """
+        print(query, file=sys.stderr)
+
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]
 
@@ -63,8 +65,6 @@ class DatabaseManager(SingletonInstance):
         column_str = '('
         column_str += ", ".join(column_name_list)
         column_str += ')'
-
-        print(column_str, file=sys.stderr)
 
         value_str = "('"
         value_str += "', '".join(values)
