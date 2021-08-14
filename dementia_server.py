@@ -58,12 +58,12 @@ def query_patient_location():
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
         long_dict = my_db.select_last_element_of_column_matches(user_id,
-                                                                finding_column="id",
+                                                                finding_column="parent_id",
                                                                 selecting_column="longitude",
                                                                 table_name="SmartWatch"
                                                                 )
         lati_dict = my_db.select_last_element_of_column_matches(user_id,
-                                                                finding_column="id",
+                                                                finding_column="parent_id",
                                                                 selecting_column="latitude",
                                                                 table_name="SmartWatch"
                                                                 )
