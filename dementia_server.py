@@ -49,7 +49,7 @@ def handle_gps_location_set():
         return 'Failed to get longitude & latitude parameters.'
 
 
-@app.route('/query-location', methods=['GET', 'POST'])
+@app.route('/query-location', methods=['POST'])
 def query_patient_location():
     if request.is_json:
         params = request.get_json()
