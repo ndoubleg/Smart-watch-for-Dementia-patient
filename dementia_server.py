@@ -60,13 +60,13 @@ def query_home_location():
         my_db.get_cursor()
         long_dict = my_db.select_column_matches(user_id,
                                                 finding_column="id",
-                                                table_name="parent_user",
-                                                column_name="patient_locate_longitude"
+                                                selecting_column="patient_locate_longitude",
+                                                table_name="parent_user"
                                                 )
         lati_dict = my_db.select_column_matches(user_id,
                                                 finding_column="id",
-                                                table_name="parent_user",
-                                                column_name="patient_locate_latitude"
+                                                selecting_column="patient_locate_latitude",
+                                                table_name="parent_user"
                                                 )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return_str = {
