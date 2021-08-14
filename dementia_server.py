@@ -15,9 +15,9 @@ def handle_request():
 
 @app.route('/append-location', methods=['POST'])
 def handle_gps_location_set():
-    print(request.is_json)
     if request.is_json:
         params = request.get_json()
+        user_id = params['id']
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
@@ -26,7 +26,25 @@ def handle_gps_location_set():
                          table_name="SmartWatch"
                          )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-        return f"Sucessfully added following data:<br>longitude: {params['longitude']}<br>latitude: {params['latitude']}"
+        my_db.create_connection(DatabaseManager.DB_USER_DATA)
+        my_db.get_cursor()
+        long_dict = my_db.select_column_matches(user_id,
+                                                finding_column="id",
+                                                selecting_column="patient_locate_longitude",
+                                                table_name="parent_user"
+                                                )
+        lati_dict = my_db.select_column_matches(user_id,
+                                                finding_column="id",
+                                                selecting_column="patient_locate_latitude",
+                                                table_name="parent_user"
+                                                )
+        my_db.close_connection(DatabaseManager.DB_USER_DATA)
+        return_dict = {
+                'longitude': long_dict['patient_locate_longitude'],
+                'latitude' : lati_dict['patient_locate_latitude']
+                }
+        result = json.dumps(return_dict)
+        return result
     else:
         return 'Failed to get longitude & latitude parameters.'
 
