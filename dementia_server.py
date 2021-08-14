@@ -28,16 +28,16 @@ def handle_gps_location_set():
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
-        long_dict = my_db.select_column_matches(user_id,
-                                                finding_column="id",
-                                                selecting_column="patient_locate_longitude",
-                                                table_name="parent_user"
-                                                )
-        lati_dict = my_db.select_column_matches(user_id,
-                                                finding_column="id",
-                                                selecting_column="patient_locate_latitude",
-                                                table_name="parent_user"
-                                                )
+        long_dict = my_db.select_first_element_of_column_matches(user_id,
+                                                                 finding_column="id",
+                                                                 selecting_column="patient_locate_longitude",
+                                                                 table_name="parent_user"
+                                                                 )
+        lati_dict = my_db.select_first_element_of_column_matches(user_id,
+                                                                 finding_column="id",
+                                                                 selecting_column="patient_locate_latitude",
+                                                                 table_name="parent_user"
+                                                                 )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return_dict = {
                 'longitude': long_dict['patient_locate_longitude'],
@@ -57,8 +57,16 @@ def query_patient_location():
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        long_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="longitude")
-        lati_dict = my_db.select_last_element_of_column(table_name="SmartWatch", column_name="latitude")
+        long_dict = my_db.select_last_element_of_column_matches(user_id,
+                                                                finding_column="id",
+                                                                selecting_column="longitude",
+                                                                table_name="SmartWatch"
+                                                                )
+        lati_dict = my_db.select_last_element_of_column_matches(user_id,
+                                                                finding_column="id",
+                                                                selecting_column="latitude",
+                                                                table_name="SmartWatch"
+                                                                )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
 
     #    test_str = f"longitude: {long_dict['longitude']}<br>latitude: {lati_dict['latitude']}"
