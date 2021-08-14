@@ -17,11 +17,10 @@ def handle_request():
 def handle_gps_location_set():
     if request.is_json:
         params = request.get_json()
-        user_id = params['id']
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        my_db.insert_row(params['parent_id'], params['longitude'], params['latitude'],
+        my_db.insert_row(params['id'], params['longitude'], params['latitude'],
                          database=DatabaseManager.DB_WATCH_DATA,
                          table_name="SmartWatch"
                          )
