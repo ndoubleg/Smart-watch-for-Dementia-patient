@@ -50,9 +50,8 @@ class DatabaseManager(SingletonInstance):
         FROM {table_name} 
         WHERE {finding_column} = '{match_keyword}';
         """
-        print(f"select_column_matches query : {query}", file=sys.stderr)
         self.cursor.execute(query)
-        print(self.cursor.fetchone(), file=sys.stderr)
+        return self.cursor.fetchone()
 
     def select_last_element_of_column(self, table_name, column_name):
         """Fetch last record in 'column_name' """
