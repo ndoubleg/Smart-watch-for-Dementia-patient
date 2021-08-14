@@ -15,7 +15,8 @@
   limitations under the License.
 -->
 <resources>
-    <string name="app_name">Getting the location address</string>
+    <string name="app_name">Watch for Dementia</string>
+
     <string name="no_geocoder_available">No geocoder available</string>
 
     <string name="fetch_address">Fetch address</string>
