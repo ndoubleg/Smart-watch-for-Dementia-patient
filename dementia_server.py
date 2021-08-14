@@ -62,8 +62,8 @@ def query_home_location():
         lati_dict = my_db.select_column_matches(user_id, table_name="parent_user", column_name="patient_locate_latitude")
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return_str = {
-                'longitude': long_dict['longitude'],
-                'latitude' : lati_dict['latitude']
+                'longitude': long_dict['patient_locate_longitude'],
+                'latitude' : lati_dict['patient_locate_latitude']
                 }
         result = json.dumps(return_str)
         print(result)
