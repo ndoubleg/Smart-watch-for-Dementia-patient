@@ -50,6 +50,52 @@
                 android:hint="patient's current address"
                 />
 
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="0,1,2"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp">
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Latitude"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/latitude_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_round_square_lightgray"
+                        android:padding="5dp"
+                        android:textAlignment="center"
+                        android:layout_marginBottom="10dp"
+                        android:layout_span="2"
+                        />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Longitude"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/longitude_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_round_square_lightgray"
+                        android:padding="5dp"
+                        android:textAlignment="center"
+                        android:layout_span="2"
+                        android:layout_marginBottom="10dp"
+                        />
+                </TableRow>
+            </TableLayout>
+
         </LinearLayout>
 
         <!-- google map  -->
