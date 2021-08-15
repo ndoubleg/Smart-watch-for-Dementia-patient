@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -166,6 +167,7 @@ public class RealService extends Service {
                         ArrayList<String> locate = JSONParsing(line);
                         double now_latitude_patient = Double.parseDouble(locate.get(1));
                         double now_longitude_patient = Double.parseDouble(locate.get(0));
+                        getDistance(now_latitude_patient,now_longitude_patient);
                         LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
 //                        Log.d("locate",locate.get(0)+locate.get(1));
                         Handler h = new Handler(getApplication().getMainLooper()); // MainActivty연결해서 UI설정
@@ -177,6 +179,7 @@ public class RealService extends Service {
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
                                 MainActivity.current_address_tv.setText(getCurrentAddressforPatient(now_latitude_patient,now_longitude_patient));
+
                             }
                         });
 
@@ -233,33 +236,55 @@ public class RealService extends Service {
         //return address.getAddressLine(0).toString()+"\n";
         return addr;
     }
-//    private void sendNotification(String messageBody) { => 푸시알림
-//        Intent intent = new Intent(this, MainActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent, PendingIntent.FLAG_ONE_SHOT);
-//
-//        String channelId = "fcm_default_channel";//getString(R.string.default_notification_channel_id);
-//        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//        NotificationCompat.Builder notificationBuilder =
-//                new NotificationCompat.Builder(this, channelId)
-//                        .setSmallIcon(R.mipmap.ic_launcher)//drawable.splash)
-//                        .setContentTitle("Service test")
-//                        .setContentText(messageBody)
-//                        .setAutoCancel(true)
-//                        .setSound(defaultSoundUri)
-//                        .setPriority(Notification.PRIORITY_HIGH)
-//                        .setContentIntent(pendingIntent);
-//
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//        // Since android Oreo notification channel is needed.
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel channel = new NotificationChannel(channelId,"Channel human readable title", NotificationManager.IMPORTANCE_DEFAULT);
-//            notificationManager.createNotificationChannel(channel);
-//        }
-//
-//        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-//    }
+    //for distance checking
+    public void getDistance(double lat , double lng){
+
+
+        Location locationA = new Location("point A");
+        locationA.setLatitude(Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"latitude")));
+        locationA.setLongitude(Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"longitude")));
+
+        Location locationB = new Location("point B");
+        locationB.setLatitude(lat);
+        locationB.setLongitude(lng);
+
+        if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
+            sendNotification("WARNING");
+        }
+    }
+
+
+
+
+
+
+    private void sendNotification(String messageBody) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent, PendingIntent.FLAG_ONE_SHOT);
+
+        String channelId = "fcm_default_channel";//getString(R.string.default_notification_channel_id);
+        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this, channelId)
+                        .setSmallIcon(R.mipmap.ic_launcher)//drawable.splash)
+                        .setContentTitle("Service test")
+                        .setContentText(messageBody)
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri)
+                        .setPriority(Notification.PRIORITY_HIGH)
+                        .setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,"Channel human readable title", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
 
 }
 
