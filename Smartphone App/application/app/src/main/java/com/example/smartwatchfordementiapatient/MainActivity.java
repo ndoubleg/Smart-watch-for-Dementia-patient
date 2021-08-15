@@ -30,6 +30,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DrawerLayout drawer_layout;
     private ImageButton menu_btn;
     private Intent serviceIntent;
+
+    private Button logout_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //click logout button
+        logout_btn=findViewById(R.id.logout_btn);
+        logout_btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(),"logout",Toast.LENGTH_SHORT).show();
+            }
+        });
+
         //navigation menu
         navigationView=findViewById(R.id.navigation_menu);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -89,10 +102,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if(id == R.id.menu_location_setting){
                     startActivity(new Intent(getApplicationContext(),LocationSettingActivity.class));
-                }
-                else if(id == R.id.menu_mypage){
-                    startActivity(new Intent(getApplicationContext(),MyPageActivity.class));
-
                 }
                 return true;
             }
