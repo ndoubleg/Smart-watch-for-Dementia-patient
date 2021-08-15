@@ -42,7 +42,7 @@ public class AddressApiActivity extends AppCompatActivity {
             }
         });
 
-        webView.loadUrl("http://3.35.149.182:5000/address");
+        webView.loadUrl("http://13.125.120.0:5000/address");
 
 
     }

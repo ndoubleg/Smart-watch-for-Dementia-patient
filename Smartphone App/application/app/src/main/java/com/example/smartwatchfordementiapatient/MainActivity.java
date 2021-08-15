@@ -12,6 +12,7 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,7 +36,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private TextView current_address_tv;
+    public static TextView current_address_tv;
 
     public static GoogleMap main_Map;
 
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("Main",SharedPreference.getAttribute(getApplicationContext(),"id"));
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(POWER_SERVICE);
 
         //google map initial setting
@@ -122,18 +124,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //latitude, longitude should be changed to patient's current location
         //location should be get from server db
+//        Toast.makeText(getApplicationContext(),"asdasdasdasd",Toast.LENGTH_SHORT).show();
+//        LatLng seoul = new LatLng(37, 128);
+//        main_Map.addMarker(new MarkerOptions().position(seoul).title("seoul"));
+//        main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
+//        main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
 
-        LatLng seoul = new LatLng(40.42317701770357, -86.92853180767158);
-        main_Map.addMarker(new MarkerOptions().position(seoul).title("seoul"));
-        main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
-        main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
-
-        current_address_tv.setText(getCurrentAddress(40.42317701770357, -86.92853180767158));
+        current_address_tv.setText("Loading...");
 
     }
 
     //geocoder : longtitude, latitude <-> address
-    public String getCurrentAddress( double latitude, double longitude) {
+    public String getCurrentAddressforPatient( double latitude, double longitude) {
 
         //지오코더
         // GPS를 주소로 변환

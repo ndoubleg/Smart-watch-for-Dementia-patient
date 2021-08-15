@@ -23,7 +23,13 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
 
                 //move to next page
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                Intent intent;
+
+                if(SharedPreference.getAttribute(getApplicationContext(),"id")==null) {
+                    intent = new Intent(getApplicationContext(), LoginActivity.class);
+                }else{
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                }
                 startActivity(intent);
                 finish();
 

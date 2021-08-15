@@ -9,6 +9,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -29,6 +31,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -38,10 +41,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class RealService extends Service {
     private Thread mainThread;
     public static Intent serviceIntent = null;
+    JSONObject json_id = new JSONObject();
 
     public RealService() {
     }
@@ -49,20 +54,26 @@ public class RealService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         serviceIntent = intent;
-        showToast(getApplication(), "Start Service");
 
         mainThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 SimpleDateFormat sdf = new SimpleDateFormat("aa hh:mm");
                 boolean run = true;
+                try {
+                    json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return;
+                }
                 while (run) {
                     try {
-                        Thread.sleep(1000 * 30 * 1); // 1 minute=>대기시ㅏㄱㄴ
+
+                         // 1 minute=>대기시ㅏㄱㄴ
                         Date date = new Date();
-                        //showToast(getApplication(), sdf.format(date));
 //                        sendNotification(sdf.format(date));
                         connectAPI();
+                        Thread.sleep(1000 * 15 * 1);
                     } catch (InterruptedException e) {
                         run = false;
                         e.printStackTrace();
@@ -128,7 +139,7 @@ public class RealService extends Service {
     private void connectAPI(){
         try{
 
-            URL url = new URL("http://3.35.149.182:5000/query-location");
+            URL url = new URL("http://13.125.120.0:5000/query-location");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             if(urlConnection != null) {
                 urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
@@ -137,6 +148,10 @@ public class RealService extends Service {
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
                 urlConnection.setDoOutput(true); // 데이터 전송
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+                bw.write(json_id.toString()); // 데이터 삽입
+                bw.flush();
+                bw.close();
 
                 //서버 내용 수신 받기
                 int resCode = urlConnection.getResponseCode();
@@ -149,9 +164,10 @@ public class RealService extends Service {
                             break;
                         Log.d("asdddddddddddd",line);
                         ArrayList<String> locate = JSONParsing(line);
-
-                        LatLng seoul = new LatLng(Double.parseDouble(locate.get(1)), Double.parseDouble(locate.get(0)));
-                        Log.d("locate",locate.get(0)+locate.get(1));
+                        double now_latitude_patient = Double.parseDouble(locate.get(1));
+                        double now_longitude_patient = Double.parseDouble(locate.get(0));
+                        LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
+//                        Log.d("locate",locate.get(0)+locate.get(1));
                         Handler h = new Handler(getApplication().getMainLooper()); // MainActivty연결해서 UI설정
                         h.post(new Runnable() {
                             @Override
@@ -160,6 +176,7 @@ public class RealService extends Service {
                                 MainActivity.main_Map.addMarker(new MarkerOptions().position(seoul).title("patient"));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
+                                MainActivity.current_address_tv.setText(getCurrentAddressforPatient(now_latitude_patient,now_longitude_patient));
                             }
                         });
 
@@ -186,6 +203,35 @@ public class RealService extends Service {
             e.printStackTrace();
         }
         return locate;
+    }
+    //geocoder : longtitude, latitude <-> address
+    public String getCurrentAddressforPatient( double latitude, double longitude) {
+
+        //지오코더
+        // GPS를 주소로 변환
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 7);
+        } catch (IOException ioException) {
+            //네트워크 문제w
+            return "geocorder not service";
+        } catch (IllegalArgumentException illegalArgumentException) {
+            //Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
+            return "wrong gps location";
+        }
+        if (addresses == null || addresses.size() == 0) {
+            //Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            return "couldn't search address";
+        }
+
+        Address address = addresses.get(0);
+        String addr=address.getAddressLine(0);
+//        addr=addr.substring(4);
+        //return address.getAddressLine(0).toString()+"\n";
+        return addr;
     }
 //    private void sendNotification(String messageBody) { => 푸시알림
 //        Intent intent = new Intent(this, MainActivity.class);

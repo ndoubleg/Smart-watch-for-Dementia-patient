@@ -35,14 +35,61 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+class RequestThread extends Thread {
+    @Override
+    public void run() {
+        try{
+            URL url = new URL("http://13.125.120.0:5000/signup");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            if(urlConnection != null) {
+                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setDoInput(true);
+                urlConnection.setChunkedStreamingMode(0);
+                urlConnection.setDoOutput(true); // 데이터 전송
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+                bw.write(LocationRegisterActivity.jsonb.toString());
+                Log.e("확인",LocationRegisterActivity.jsonb.toString());
+                bw.flush();
+                bw.close();
+
+                //서버 내용 수신 받기
+                int resCode = urlConnection.getResponseCode();
+                if(resCode == HttpURLConnection.HTTP_OK){
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    String line = null;
+                    while(true){
+                        line = reader.readLine();
+                        if(line == null)
+                            break;
+                        Log.d("asdddddddddddd",line);
+                    }
+                    reader.close();
+                }
+                urlConnection.disconnect();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("wrong",String.valueOf(e));
+        }
+    }
+}
 
 public class LocationRegisterActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -50,7 +97,8 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
     private GoogleMap mMap;
     private Button complete_btn;
     private TextView address_tv;
-    private int radius=300;
+    private int radius=300; // patinet_range
+
 
     private RadioGroup search_radioGroup;
     private RadioButton google;
@@ -69,6 +117,7 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
     private double selected_latitude=37.56638872588792;
     private double selected_longtitude=126.97800947033107;
 
+    public static JSONObject jsonb;
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
@@ -83,6 +132,13 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_registration);
+        //get Intent from LoginActivity
+        Intent loginintent = getIntent();
+        String name = loginintent.getStringExtra("name");
+        String id = loginintent.getStringExtra("id");
+        String pw = loginintent.getStringExtra("pw");
+        String phone = loginintent.getStringExtra("phone");
+        String patient = loginintent.getStringExtra("patient");
 
         //radio group setting
         search_radioGroup=findViewById(R.id.search_radiogroup);
@@ -179,10 +235,27 @@ public class LocationRegisterActivity extends AppCompatActivity implements OnMap
             public void onClick(View v) {
 
                 //connet to server to send location data..
-
                 //then move to next page
                 //move to next page
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
+                jsonb = new JSONObject();
+                try{
+                    jsonb.put("name", name);
+                    jsonb.put("pw", pw);
+                    jsonb.put("id",id);
+                    jsonb.put("patient",patient);
+                    jsonb.put("phone",phone);
+                    jsonb.put("selected_latitude",selected_latitude);
+                    jsonb.put("selected_longitude",selected_longtitude);
+                    jsonb.put("range",radius);
+                    RequestThread thread = new RequestThread();
+                    thread.start();
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),"wrong signup",Toast.LENGTH_SHORT).show();
+                }
+
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 finish();
 
