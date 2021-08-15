@@ -179,7 +179,8 @@ public class RealService extends Service {
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
                                 MainActivity.current_address_tv.setText(getCurrentAddressforPatient(now_latitude_patient,now_longitude_patient));
-
+                                MainActivity.current_latitude.setText(Double.toString(now_latitude_patient));
+                                MainActivity.current_longitude.setText(Double.toString(now_longitude_patient));
                             }
                         });
 

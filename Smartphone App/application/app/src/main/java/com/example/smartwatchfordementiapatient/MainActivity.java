@@ -37,6 +37,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     public static TextView current_address_tv;
+    public static TextView current_latitude;
+    public static TextView current_longitude;
 
     public static GoogleMap main_Map;
 
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DrawerLayout drawer_layout;
     private ImageButton menu_btn;
     private Intent serviceIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         drawer_layout=findViewById(R.id.drawer_layout);
         navigationView=findViewById(R.id.navigation_menu);
+        current_latitude = findViewById(R.id.latitude_tv);
+        current_longitude = findViewById(R.id.longitude_tv);
 
         //click menu button
         menu_btn=findViewById(R.id.menu_btn);
@@ -131,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
 
         current_address_tv.setText("Loading...");
-
+        current_longitude.setText("Loading...");
+        current_latitude.setText("Loading...");
     }
 
     //geocoder : longtitude, latitude <-> address
