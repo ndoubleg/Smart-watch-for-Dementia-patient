@@ -29,8 +29,9 @@ def handle_gps_location_set():
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
         selected_cols = my_db.select_first_element_of_column_matches(
-            user_id, finding_column="id",
-            selecting_column=("patient_locate_longitude", "patient_locate_latitude", "is_patient_away"),
+            "patient_locate_longitude", "patient_locate_latitude", "is_patient_away",
+            match_keyword=user_id,
+            finding_column="id",
             table_name="parent_user"
         )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)

@@ -45,9 +45,9 @@ class DatabaseManager(SingletonInstance):
         self.cursor.execute(query)
         return self.cursor.fetchall()[-1]
 
-    def select_first_element_of_column_matches(self, match_keyword, finding_column, *selecting_column, table_name):
+    def select_first_element_of_column_matches(self, *selecting_columns, match_keyword, finding_column, table_name):
         """Fetch all records which exactly matches 'match_keyword' inside 'column_name' """
-        columns = ", ".join(selecting_column)
+        columns = ", ".join(selecting_columns)
         query = f"""
         SELECT {columns} 
         FROM {table_name} 
