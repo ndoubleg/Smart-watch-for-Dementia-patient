@@ -80,8 +80,8 @@ def update_patient_away():
         location = my_db.update_row_matches(
             is_patient_away=is_patient_away,
             match_keyword=user_id,
-            finding_column="parent_id",
-            table_name="SmartWatch"
+            finding_column="id",
+            table_name="parent_user"
         )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
         # result = json.dumps(location)
