@@ -35,10 +35,14 @@ def handle_gps_location_set():
             table_name="parent_user"
         )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
+        if selected_cols['is_patient_away']:
+            is_patient_away = "true"
+        else:
+            is_patient_away = "false"
         return_dict = {
                 'longitude': selected_cols['patient_locate_longitude'],
                 'latitude': selected_cols['patient_locate_latitude'],
-                'is_patient_away': selected_cols['is_patient_away']
+                'is_patient_away': is_patient_away
                 }
         result = json.dumps(return_dict)
         return result
