@@ -155,3 +155,13 @@ class DatabaseManager(SingletonInstance):
             return result[-1]
         else:
             return "wrong"
+
+    def get_update_locate(self,user_id,latitude,longitude,patient_range,table_name):
+        query=f"""
+            UPDATE {table_name}
+            SET patient_locate_latitude="{latitude}", patient_locate_longitude="{longitude}",patient_range="{patient_range}"
+            WHERE id="{user_id}"
+        """
+        print("asddasdasd",query,file=sys.stderr)
+        self.cursor.execute(query)
+        self.connection.commit()

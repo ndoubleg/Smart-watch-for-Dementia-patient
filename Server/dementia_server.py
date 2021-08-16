@@ -149,6 +149,22 @@ def login():
             }
             print('asdddddd', return_result)
             return json.dumps(return_result)
+
+@app.route('/update-locate',methods=['POST'])   
+def update_locate():
+    if(request.is_json):
+        print("asdasd")
+        user_my_db = DatabaseManager.instance()
+        user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
+        user_my_db.get_cursor()
+        params = request.get_json()
+        user_id = params['id'] 
+        latitude = params['selected_latitude']
+        longitude = params['selected_longitude']
+        patient_range = params['range']
+        user_my_db.get_update_locate(user_id=user_id,latitude=latitude,longitude=longitude,patient_range=patient_range,table_name="parent_user")
+        user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
+        return "success"
         
 
 app.run(host="0.0.0.0", port=5000, debug=True)
