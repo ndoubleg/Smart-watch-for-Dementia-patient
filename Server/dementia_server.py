@@ -76,21 +76,19 @@ def update_patient_away():
             is_patient_away = "true"
         else:
             is_patient_away = "false"
-        print(user_id, is_patient_away, file=sys.stderr)
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
-        location = my_db.update_row_matches(
+        my_db.update_row_matches(
             is_patient_away=is_patient_away,
             match_keyword=user_id,
             finding_column="id",
             table_name="parent_user"
         )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
-        # result = json.dumps(location)
-        # return result
+        return "Successfully updated if patient is away from home"
     else:
-        return "Failed to query patient's last location."
+        return "Failed to update if patient is away from home"
 
 
 @app.route('/address', methods=['GET', 'POST'])
