@@ -35,7 +35,6 @@ def handle_gps_location_set():
             table_name="parent_user"
         )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
-        print(selected_cols, file=sys.stderr)
         return_dict = {
                 'longitude': selected_cols['patient_locate_longitude'],
                 'latitude': selected_cols['patient_locate_latitude'],
@@ -62,13 +61,30 @@ def query_patient_location():
             table_name="SmartWatch"
         )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-        print(location, file=sys.stderr)
-        return_dict = {
-                'longitude': location['longitude'],
-                'latitude' : location['latitude']
-                }
-        result = json.dumps(return_dict)
+        result = json.dumps(location)
         return result
+    else:
+        return "Failed to query patient's last location."
+
+
+@app.route('/update-away', methods=['POST'])
+def query_patient_location():
+    if request.is_json:
+        params = request.get_json()
+        user_id = params['id']
+        is_patient_away = params['is_patient_away']
+        my_db = DatabaseManager().instance()
+        my_db.create_connection(DatabaseManager.DB_USER_DATA)
+        my_db.get_cursor()
+        location = my_db.update_row_matches(
+            is_patient_away=is_patient_away,
+            match_keyword=user_id,
+            finding_column="parent_id",
+            table_name="SmartWatch"
+        )
+        my_db.close_connection(DatabaseManager.DB_USER_DATA)
+        # result = json.dumps(location)
+        # return result
     else:
         return "Failed to query patient's last location."
 

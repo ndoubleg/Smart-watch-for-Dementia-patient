@@ -82,6 +82,22 @@ class DatabaseManager(SingletonInstance):
         print(f"Inserted values {value_str} into columns {column_str} at table {table_name}", file=sys.stderr)
         self.connection.commit()
 
+    def update_row_matches(self, match_keyword, finding_column, table_name, **update_values):
+        """Fetch all records with 'filter_keyword' inside 'column_name' """
+        set_str = ""
+        for key, val in update_values:
+            set_str += f"{key} = {val}, "
+        set_str = set_str.rstrip(", ")
+        query = f"""
+        UPDATE {table_name} 
+        SET {set_str}
+        WHERE {finding_column} = '{match_keyword}';
+        """
+        print(query, file=sys.stderr)
+
+        self.cursor.execute(query)
+        print(self.cursor.fetchall(), file=sys.stderr)
+
     def get_column_names(self, database, table_name):
         column_name_list = []
         query = f"""
