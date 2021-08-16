@@ -73,9 +73,9 @@ def update_patient_away():
         params = request.get_json()
         user_id = params['id']
         if params['is_patient_away']:
-            is_patient_away = b'1'
+            is_patient_away = "true"
         else:
-            is_patient_away = b'0'
+            is_patient_away = "false"
         print(user_id, is_patient_away, file=sys.stderr)
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_USER_DATA)

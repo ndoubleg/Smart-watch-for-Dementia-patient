@@ -95,9 +95,8 @@ class DatabaseManager(SingletonInstance):
         WHERE {finding_column} = '{match_keyword}';
         """
         print(query, file=sys.stderr)
-
         self.cursor.execute(query)
-        print(self.cursor.fetchall(), file=sys.stderr)
+        self.connection.commit()
 
     def get_column_names(self, database, table_name):
         column_name_list = []
