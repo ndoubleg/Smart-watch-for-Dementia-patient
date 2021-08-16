@@ -28,20 +28,17 @@ def handle_gps_location_set():
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
-        long_dict = my_db.select_first_element_of_column_matches(user_id,
-                                                                 finding_column="id",
-                                                                 selecting_column="patient_locate_longitude",
-                                                                 table_name="parent_user"
-                                                                 )
-        lati_dict = my_db.select_first_element_of_column_matches(user_id,
-                                                                 finding_column="id",
-                                                                 selecting_column="patient_locate_latitude",
-                                                                 table_name="parent_user"
-                                                                 )
+        selected_cols = my_db.select_first_element_of_column_matches(
+            user_id, finding_column="id",
+            selecting_column=("patient_locate_longitude", "patient_locate_latitude", "is_patient_away"),
+            table_name="parent_user"
+        )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
+        print(f"'is_patient_away': {selected_cols['is_patient_away']}")
         return_dict = {
-                'longitude': long_dict['patient_locate_longitude'],
-                'latitude' : lati_dict['patient_locate_latitude']
+                'longitude': selected_cols['patient_locate_longitude'],
+                'latitude': selected_cols['patient_locate_latitude'],
+                'is_patient_away': selected_cols['is_patient_away']
                 }
         result = json.dumps(return_dict)
         return result
