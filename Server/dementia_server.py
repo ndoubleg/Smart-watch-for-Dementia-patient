@@ -28,14 +28,14 @@ def handle_gps_location_set():
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
-        selected_cols = my_db.select_first_element_of_column_matches(
+        selected_cols = my_db.select_first_element_matches(
             "patient_locate_longitude", "patient_locate_latitude", "is_patient_away",
             match_keyword=user_id,
             finding_column="id",
             table_name="parent_user"
         )
         my_db.close_connection(DatabaseManager.DB_USER_DATA)
-        print(f"'is_patient_away': {selected_cols['is_patient_away']}")
+        print(selected_cols, file=sys.stderr)
         return_dict = {
                 'longitude': selected_cols['patient_locate_longitude'],
                 'latitude': selected_cols['patient_locate_latitude'],
@@ -55,20 +55,17 @@ def query_patient_location():
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        long_dict = my_db.select_last_element_of_column_matches(user_id,
-                                                                finding_column="parent_id",
-                                                                selecting_column="longitude",
-                                                                table_name="SmartWatch"
-                                                                )
-        lati_dict = my_db.select_last_element_of_column_matches(user_id,
-                                                                finding_column="parent_id",
-                                                                selecting_column="latitude",
-                                                                table_name="SmartWatch"
-                                                                )
+        location = my_db.select_last_element_matches(
+            "longitude", "latitude",
+            match_keyword=user_id,
+            finding_column="parent_id",
+            table_name="SmartWatch"
+        )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
+        print(location, file=sys.stderr)
         return_dict = {
-                'longitude': long_dict['longitude'],
-                'latitude' : lati_dict['latitude']
+                'longitude': location['longitude'],
+                'latitude' : location['latitude']
                 }
         result = json.dumps(return_dict)
         return result
