@@ -68,7 +68,7 @@ def query_patient_location():
 
 
 @app.route('/update-away', methods=['POST'])
-def query_patient_location():
+def update_patient_away():
     if request.is_json:
         params = request.get_json()
         user_id = params['id']
