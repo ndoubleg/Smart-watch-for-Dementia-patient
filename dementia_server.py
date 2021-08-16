@@ -135,7 +135,7 @@ def login():
                 'patient_range' : result['patient_range']
             }
             print('asdddddd', return_result)
-            return return_result
+            return json.dumps(return_result)
         
 
 app.run(host="0.0.0.0", port=5000, debug=True)
