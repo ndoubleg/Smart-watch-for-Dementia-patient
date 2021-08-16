@@ -86,7 +86,7 @@ class DatabaseManager(SingletonInstance):
         """Fetch all records with 'filter_keyword' inside 'column_name' """
         set_str = ""
         print(update_values, file=sys.stderr)
-        for key, val in update_values:
+        for key, val in update_values.items():
             set_str += f"{key} = {val}, "
         set_str = set_str.rstrip(", ")
         query = f"""
