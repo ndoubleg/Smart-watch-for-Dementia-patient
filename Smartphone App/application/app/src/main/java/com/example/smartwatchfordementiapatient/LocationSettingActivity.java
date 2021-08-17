@@ -5,12 +5,17 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,20 +27,88 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 
+class LocationUpdate extends Thread {
+    @Override
+    public void run() {
+        try{
+            URL url = new URL("http://13.125.120.0:5000/update-locate");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            if(urlConnection != null) {
+                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setDoInput(true);
+                urlConnection.setChunkedStreamingMode(0);
+                urlConnection.setDoOutput(true); // 데이터 전송
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+                bw.write(LocationSettingActivity.jsonb.toString());
+                Log.e("확인",LocationSettingActivity.jsonb.toString());
+                bw.flush();
+                bw.close();
+
+                //서버 내용 수신 받기
+                int resCode = urlConnection.getResponseCode();
+                if(resCode == HttpURLConnection.HTTP_OK){
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    String line = null;
+                    while(true){
+                        line = reader.readLine();
+                        if(line == null)
+                            break;
+                        Log.d("asdddddddddddd",line);
+                    }
+                    reader.close();
+                }
+                urlConnection.disconnect();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("wrong",String.valueOf(e));
+        }
+    }
+}
+
+
+
 public class LocationSettingActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private RadioGroup search_radioGroup;
+    private RadioButton google;
+    private RadioButton daum;
+    private String search_setting="google";
+
+    private RadioGroup radioGroup;
+    private RadioButton radio300;
+    private RadioButton radio500;
+    private RadioButton radio1000;
+
+    private EditText edit_addr;
+    private ImageButton search_btn;
+    private Button korea_address;
+    public static JSONObject jsonb;
 
     private GoogleMap mMap;
     private Button complete_btn;
     private Button cancel_btn;
-
-    private double selected_latitude=37.56638872588792;
-    private double selected_longtitude=126.97800947033107;
-
+    private int radius; // patinet_range
+    private double selected_latitude;
+    private double selected_longtitude;
+    private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
+    private static final int ADDRESS_LIST_SELECTED = 10001;
     private TextView address_tv;
     private ImageButton back_btn;
 
@@ -44,6 +117,25 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_setting);
 
+        //radio group setting
+        search_radioGroup=findViewById(R.id.search_radiogroup);
+        search_radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener1);
+        google=findViewById(R.id.google_radio);
+        daum=findViewById(R.id.daum_radio);
+        radius = Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"));
+        selected_latitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"latitude"));
+        selected_longtitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"longitude"));
+
+        radio300=findViewById(R.id.radio_300);
+        radio500=findViewById(R.id.radio_500);
+        radio1000=findViewById(R.id.radio_1000);
+        radioGroup=findViewById(R.id.radiogroup);
+        radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
+
+        edit_addr = findViewById(R.id.address_search_et);
+        search_btn = findViewById(R.id.search_btn);
+        Geocoder geocoder = new Geocoder(this);
+        korea_address = findViewById(R.id.korea_search);
         address_tv=findViewById(R.id.address_tv);
         //check location permission
         String addr=getCurrentAddress(selected_latitude,selected_longtitude);
@@ -57,16 +149,96 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
             }
         });
 
+
+        search_btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(search_setting=="google"){ //구글 주소 검색
+                    List<Address> list = null;
+                    String str = edit_addr.getText().toString();
+                    TextView tv = findViewById(R.id.address_tv);
+                    if (str != "") {
+                        try {
+                            list = geocoder.getFromLocationName(
+                                    str,
+                                    10);
+                            Log.e("test", Integer.toString(list.size()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e("test", "입출력 오류 - 주소변환시 에러발생");
+                        }
+                        Toast.makeText(getApplicationContext(), Integer.toString(list.size()), Toast.LENGTH_SHORT).show();
+                        if (list != null) {
+                            if (list.size() == 0) {
+                                tv.setText("No Adress information");
+                                mMap.clear();
+                            } else {
+
+                                ArrayList<Locate> address_list = new ArrayList<>();
+                                for(Address temp : list){
+                                    address_list.add(new Locate(temp.getLatitude(),temp.getLongitude()));
+                                }
+                                Intent intent = new Intent(getApplicationContext(), AddressList.class);
+                                intent.putExtra("datalist", address_list);
+                                overridePendingTransition(0, 0);
+                                startActivityForResult(intent,ADDRESS_LIST_SELECTED);
+
+
+                            }
+
+                        }
+                    }
+                }else{ //다음 주소 검색
+                    Log.i("주소설정페이지", "주소입력창 클릭");
+                    int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
+                    if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
+
+                        Log.i("주소설정페이지", "주소입력창 클릭");
+                        Intent i = new Intent(getApplicationContext(), AddressApiActivity.class);
+                        // 화면전환 애니메이션 없애기
+                        overridePendingTransition(0, 0);
+                        // 주소결과
+                        startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
+
+                    }else {
+                        Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
         //click complete button
         complete_btn=findViewById(R.id.complete_btn);
+        //do update the data
         complete_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 //connet to server to send location data..
-
                 //then move to next page
                 //move to next page
+
+                jsonb = new JSONObject();
+                try{
+                    jsonb.put("id",SharedPreference.getAttribute(getApplicationContext(),"id"));
+                    jsonb.put("selected_latitude",selected_latitude);
+                    jsonb.put("selected_longitude",selected_longtitude);
+                    jsonb.put("range",radius);
+                    LocationUpdate thread = new LocationUpdate();
+                    thread.start();
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),"wrong signup",Toast.LENGTH_SHORT).show();
+                }
+                //change data in SharedPreference(in app)
+                //remove
+                SharedPreference.removeAttribute(getApplicationContext(),"latitude");
+                SharedPreference.removeAttribute(getApplicationContext(),"longitude");
+                SharedPreference.removeAttribute(getApplicationContext(),"patient_range");
+                //input data
+                SharedPreference.setAttribute(getApplicationContext(),"latitude",Double.toString(selected_latitude));
+                SharedPreference.setAttribute(getApplicationContext(),"longitude",Double.toString(selected_longtitude));
+                SharedPreference.setAttribute(getApplicationContext(),"patient_range",Integer.toString(radius));
                 Toast.makeText(getApplicationContext(), "complete modify location", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
@@ -74,7 +246,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
 
             }
         });
-
+        //cancel button push
         cancel_btn=findViewById(R.id.cancel_btn);
         cancel_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,10 +306,16 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         mMap.addMarker(new MarkerOptions().position(seoul).title("seoul"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
-
+        if(radius==300){
+            radio300.setChecked(true);
+        }else if(radius==500){
+            radio500.setChecked(true);
+        }else{
+            radio1000.setChecked(true);
+        }
         // 반경 1KM원
         CircleOptions circle1KM = new CircleOptions().center(seoul) //latitude & longitude of point
-                .radius(1000)      //radius unit : m
+//                .radius(radius)      //radius unit : m
                 .strokeWidth(0f)  //line width -> 0f = no line
                 .fillColor(Color.parseColor("#885b9fde")); //background color
 
@@ -145,6 +323,61 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
 
 
     }
+    //radio group click listener
+    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener1 = new RadioGroup.OnCheckedChangeListener() {
+        @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i == R.id.google_radio){
+                search_setting="google";
+            } else if(i == R.id.daum_radio){
+                search_setting = "daum";
+                edit_addr.setText("");
+            }
+        }
+    };
+    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener = new RadioGroup.OnCheckedChangeListener() {
+        @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i == R.id.radio_300){
+                radius=300;
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+                Toast.makeText(getApplicationContext(), "range: 300m", Toast.LENGTH_SHORT).show();
+
+            } else if(i == R.id.radio_500){
+                radius=500;
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+                Toast.makeText(getApplicationContext(), "range: 500m", Toast.LENGTH_SHORT).show();
+            }
+            else if(i==R.id.radio_1000){
+                radius=1000;
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+                Toast.makeText(getApplicationContext(), "range: 1km", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     //geocoder : longtitude, latitude <-> address
     public String getCurrentAddress( double latitude, double longitude) {
@@ -175,5 +408,106 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         //return address.getAddressLine(0).toString()+"\n";
         return addr;
     }
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case SEARCH_ADDRESS_ACTIVITY:
+                Geocoder geocoder = new Geocoder(this);
+                if (resultCode == RESULT_OK) {
+                    String address = data.getExtras().getString("data");
+                    if (address != null) { // 주소 존재
+                        Log.i("test", "data:" + address);
+                        edit_addr.setText(address);
+                        List<Address> list = null;
+                        String str = edit_addr.getText().toString();
+                        TextView tv = findViewById(R.id.address_tv);
+                        try{
+                            list = geocoder.getFromLocationName(
+                                    str,
+                                    10);
+                            Log.e("test",Integer.toString(list.size()));
+                        }catch (IOException e){
+                            e.printStackTrace();
+                            Log.e("test","입출력 오류 - 주소변환시 에러발생");
+                        }
+                        Toast.makeText(getApplicationContext(),Integer.toString(list.size()),Toast.LENGTH_SHORT).show();
+                        if(list!=null) {
+                            if (list.size() == 0) {
+                                tv.setText("No Adress information");
+                                mMap.clear();
+                            } else {
+
+                                tv.setText(list.get(0).getAddressLine(0));
+                                selected_latitude = list.get(0).getLatitude();
+                                selected_longtitude = list.get(0).getLongitude();
+                                mMap.clear();
+                                MarkerOptions mOptions = new MarkerOptions();
+                                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                                        .radius(radius)      //radius unit : m
+                                        .strokeWidth(0f)  //line width -> 0f = no line
+                                        .fillColor(Color.parseColor("#885b9fde")); //background color
+
+                                mMap.addMarker(mOptions);
+                                mMap.addCircle(circle);
+                                LatLng newArea = new LatLng(selected_latitude, selected_longtitude);
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(newArea));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newArea, 14));
+
+                            }
+                        }
+
+                    }
+                }
+                break;
+            case ADDRESS_LIST_SELECTED:
+                Geocoder geocoder1 = new Geocoder(this);
+                if(resultCode==RESULT_OK){
+                    String text = data.getExtras().getString("data");
+                    if(text!=""){
+                        edit_addr.setText(text);
+                        List<Address> list = null;
+                        TextView tv = findViewById(R.id.address_tv);
+                        try{
+                            list = geocoder1.getFromLocationName(
+                                    text,
+                                    10);
+                            Log.e("test",Integer.toString(list.size()));
+                        }catch (IOException e){
+                            e.printStackTrace();
+                            Log.e("test","입출력 오류 - 주소변환시 에러발생");
+                        }
+                        //Toast.makeText(getApplicationContext(),Integer.toString(list.size()),Toast.LENGTH_SHORT).show();
+                        if(list!=null) {
+                            if (list.size() == 0) {
+                                tv.setText("No Adress information");
+                                mMap.clear();
+                            } else {
+
+                                tv.setText(list.get(0).getAddressLine(0));
+                                selected_latitude = list.get(0).getLatitude();
+                                selected_longtitude = list.get(0).getLongitude();
+                                mMap.clear();
+                                MarkerOptions mOptions = new MarkerOptions();
+                                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                                        .radius(radius)      //radius unit : m
+                                        .strokeWidth(0f)  //line width -> 0f = no line
+                                        .fillColor(Color.parseColor("#885b9fde")); //background color
+
+                                mMap.addMarker(mOptions);
+                                mMap.addCircle(circle);
+                                LatLng newArea = new LatLng(selected_latitude, selected_longtitude);
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(newArea));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newArea, 14));
+
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+
 
 }

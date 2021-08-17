@@ -44,14 +44,79 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+//Thread 생성 하나더
+//class GetLocate extends Thread {
+//    @Override
+//    public void run() {
+//        try{
+//
+//            URL url = new URL("http://13.125.120.0:5000/query-location");
+//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//            if(urlConnection != null) {
+//                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+//                urlConnection.setRequestMethod("POST");
+//                urlConnection.setRequestProperty("Content-Type", "application/json");
+//                urlConnection.setDoInput(true);
+//                urlConnection.setChunkedStreamingMode(0);
+//                urlConnection.setDoOutput(true); // 데이터 전송
+//                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+//                bw.write(json_id.toString()); // 데이터 삽입
+//                bw.flush();
+//                bw.close();
+//
+//                //서버 내용 수신 받기
+//                int resCode = urlConnection.getResponseCode();
+//                if(resCode == HttpURLConnection.HTTP_OK){
+//                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//                    String line = null;
+//                    while(true){
+//                        line = reader.readLine();
+//                        if(line == null)
+//                            break;
+//                        Log.d("asdddddddddddd",line);
+//                        ArrayList<String> locate = JSONParsing(line);
+//                        double now_latitude_patient = Double.parseDouble(locate.get(1));
+//                        double now_longitude_patient = Double.parseDouble(locate.get(0));
+//                        getDistance(now_latitude_patient,now_longitude_patient);
+//                        LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
+////                        Log.d("locate",locate.get(0)+locate.get(1));
+//                        Handler h = new Handler(getApplication().getMainLooper()); // MainActivty연결해서 UI설정
+//                        h.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//
+//                                MainActivity.main_Map.addMarker(new MarkerOptions().position(seoul).title("patient"));
+//                                MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
+//                                MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
+//                                MainActivity.current_address_tv.setText(getCurrentAddressforPatient(now_latitude_patient,now_longitude_patient));
+//                                MainActivity.current_latitude.setText(Double.toString(now_latitude_patient));
+//                                MainActivity.current_longitude.setText(Double.toString(now_longitude_patient));
+//                            }
+//                        });
+//
+//                    }
+//                    reader.close();
+//                }
+//                urlConnection.disconnect();
+//            }
+//        }catch(Exception e){
+//            e.printStackTrace();
+//            Log.e("wrong",String.valueOf(e));
+//        }
+//    }
+//}
+
+//http://13.125.120.0:5000/update-away
+
 public class RealService extends Service {
     private Thread mainThread;
+    private boolean patient_in = true;
+    private boolean patient_out = false;
     public static Intent serviceIntent = null;
     JSONObject json_id = new JSONObject();
 
     public RealService() {
     }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         serviceIntent = intent;
@@ -61,20 +126,10 @@ public class RealService extends Service {
             public void run() {
                 SimpleDateFormat sdf = new SimpleDateFormat("aa hh:mm");
                 boolean run = true;
-                try {
-                    json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
-                }catch (Exception e){
-                    e.printStackTrace();
-                    return;
-                }
                 while (run) {
                     try {
-
-                         // 1 minute=>대기시ㅏㄱㄴ
-                        Date date = new Date();
-//                        sendNotification(sdf.format(date));
                         connectAPI();
-                        Thread.sleep(1000 * 15 * 1);
+                        Thread.sleep(1000 * 15 * 1); // for wait server
                     } catch (InterruptedException e) {
                         run = false;
                         e.printStackTrace();
@@ -136,7 +191,7 @@ public class RealService extends Service {
         AlarmManager mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         mAlarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), sender);
     }
-    
+    //connect to api for getting locate
     private void connectAPI(){
         try{
 
@@ -149,6 +204,7 @@ public class RealService extends Service {
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
                 urlConnection.setDoOutput(true); // 데이터 전송
+                json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
                 bw.write(json_id.toString()); // 데이터 삽입
                 bw.flush();
@@ -167,7 +223,12 @@ public class RealService extends Service {
                         ArrayList<String> locate = JSONParsing(line);
                         double now_latitude_patient = Double.parseDouble(locate.get(1));
                         double now_longitude_patient = Double.parseDouble(locate.get(0));
-                        getDistance(now_latitude_patient,now_longitude_patient);
+                        if(getDistance(now_latitude_patient,now_longitude_patient)&&patient_in){
+                            Log.e("sadffffffffffffffff","sfdaaaaaaaaaaaaaa");
+                            sendOutofRangeAPI();
+                        }else if(!getDistance(now_latitude_patient,now_longitude_patient)&&!patient_in){
+                            sendOutofRangeAPI();
+                        }
                         LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
 //                        Log.d("locate",locate.get(0)+locate.get(1));
                         Handler h = new Handler(getApplication().getMainLooper()); // MainActivty연결해서 UI설정
@@ -194,6 +255,56 @@ public class RealService extends Service {
             Log.e("wrong",String.valueOf(e));
         }
     }
+    //when patient is out of range
+    private void sendOutofRangeAPI(){
+        try{
+
+            URL url = new URL("http://13.125.120.0:5000/update-away");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            if(urlConnection != null) {
+                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setDoInput(true);
+                urlConnection.setChunkedStreamingMode(0);
+                urlConnection.setDoOutput(true); // 데이터 전송
+                if(patient_in){//patient is out of range
+                    json_id.put("is_patient_away",true);
+                    patient_in=false;
+                }else{
+                    json_id.put("is_patient_away",false);
+                    patient_in=true;
+                }
+                json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
+                Log.e("I'm in",json_id.toString());
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+                bw.write(json_id.toString()); // 데이터 삽입
+                bw.flush();
+                bw.close();
+                Log.e("I'm in",json_id.toString());
+                int resCode = urlConnection.getResponseCode();
+                if(resCode == HttpURLConnection.HTTP_OK){
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    String line = null;
+                    while(true){
+                        line = reader.readLine();
+                        if(line == null)
+                            break;
+                        Log.d("askkkkkkkkkkkkkkkkkkkkkk",line);
+                    }
+                    reader.close();
+                }
+
+
+                urlConnection.disconnect();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("wrong",String.valueOf(e));
+        }
+    }
+
+
     private ArrayList<String> JSONParsing(String jsonstring){
         StringBuilder stringBuilder = new StringBuilder();
         ArrayList<String> locate = new ArrayList<>();
@@ -238,7 +349,7 @@ public class RealService extends Service {
         return addr;
     }
     //for distance checking
-    public void getDistance(double lat , double lng){
+    public boolean getDistance(double lat , double lng){
 
 
         Location locationA = new Location("point A");
@@ -252,13 +363,18 @@ public class RealService extends Service {
         if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
             sendNotification("WARNING");
         }
+        if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 
 
 
 
-
+    //push alaram
     private void sendNotification(String messageBody) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

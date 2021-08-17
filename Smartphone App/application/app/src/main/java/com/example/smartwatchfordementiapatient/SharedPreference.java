@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 //for saving userinfo after Login
 public class SharedPreference {
+
     //save data
     public static void setAttribute(Context context, String key, String value){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

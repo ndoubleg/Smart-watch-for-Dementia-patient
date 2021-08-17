@@ -9,10 +9,10 @@ public class AlarmRecever extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //after oreo version then restartservice
             Intent in = new Intent(context, RestartService.class);
             context.startForegroundService(in);
-        } else {
+        } else { // else realservice
             Intent in = new Intent(context, RealService.class);
             context.startService(in);
         }

@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat;
 public class RestartService extends Service {
     public RestartService() {
     }
-
+    //foreground service code(not dead)
     @Override
     public void onCreate() {
         super.onCreate();

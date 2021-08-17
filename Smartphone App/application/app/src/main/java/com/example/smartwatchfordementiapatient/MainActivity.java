@@ -86,6 +86,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(),"logout",Toast.LENGTH_SHORT).show();
+                SharedPreference.removeAll(getApplicationContext());
+//                if (serviceIntent!=null) {
+//                    stopService(serviceIntent);
+//                    serviceIntent = null;
+//                }
+                finish();
             }
         });
 
@@ -119,11 +125,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if (RealService.serviceIntent==null) {
+            Toast.makeText(getApplicationContext(),"Asdddddd",Toast.LENGTH_SHORT).show();
             serviceIntent = new Intent(this, RealService.class);
             startService(serviceIntent);
         } else {
+            Toast.makeText(getApplicationContext(),"dfasddddddddddddd",Toast.LENGTH_SHORT).show();
             serviceIntent = RealService.serviceIntent;//getInstance().getApplication();
-            Toast.makeText(getApplicationContext(), "already", Toast.LENGTH_LONG).show();
+            startService(serviceIntent);
         }
 
 
@@ -135,14 +143,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         main_Map = googleMap;
-
-        //latitude, longitude should be changed to patient's current location
-        //location should be get from server db
-//        Toast.makeText(getApplicationContext(),"asdasdasdasd",Toast.LENGTH_SHORT).show();
-//        LatLng seoul = new LatLng(37, 128);
-//        main_Map.addMarker(new MarkerOptions().position(seoul).title("seoul"));
-//        main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
-//        main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
 
         current_address_tv.setText("Loading...");
         current_longitude.setText("Loading...");
