@@ -112,7 +112,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent intent = new Intent(getApplicationContext(),SignActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
         //click the login button

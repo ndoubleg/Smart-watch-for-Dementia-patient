@@ -91,7 +91,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //                    stopService(serviceIntent);
 //                    serviceIntent = null;
 //                }
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
                 finish();
+
             }
         });
 
@@ -125,11 +128,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if (RealService.serviceIntent==null) {
-            Toast.makeText(getApplicationContext(),"Asdddddd",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),"Asdddddd",Toast.LENGTH_SHORT).show();
             serviceIntent = new Intent(this, RealService.class);
             startService(serviceIntent);
         } else {
-            Toast.makeText(getApplicationContext(),"dfasddddddddddddd",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),"dfasddddddddddddd",Toast.LENGTH_SHORT).show();
             serviceIntent = RealService.serviceIntent;//getInstance().getApplication();
             startService(serviceIntent);
         }
