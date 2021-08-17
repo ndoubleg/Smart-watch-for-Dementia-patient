@@ -17,11 +17,17 @@ def handle_request():
 def handle_gps_location_set():
     if request.is_json:
         params = request.get_json()
-        user_id = params['id']
+        try:
+            user_id = params['id']
+            longitude = params['longitude']
+            latitude = params['latitude']
+        except KeyError as e:
+            print(e, file=sys.stderr)
+            return "Failed to get longitude & latitude parameters."
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
-        my_db.insert_row(user_id, params['longitude'], params['latitude'],
+        my_db.insert_row(user_id, longitude, latitude,
                          database=DatabaseManager.DB_WATCH_DATA,
                          table_name="SmartWatch"
                          )
@@ -54,7 +60,11 @@ def handle_gps_location_set():
 def query_patient_location():
     if request.is_json:
         params = request.get_json()
-        user_id = params['id']
+        try:
+            user_id = params['id']
+        except KeyError as e:
+            print(e, file=sys.stderr)
+            return "Failed to query patient's last location."
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
@@ -74,14 +84,17 @@ def query_patient_location():
 @app.route('/update-away', methods=['POST'])
 def update_patient_away():
     if request.is_json:
-        
         params = request.get_json()
-        user_id = params['id']
-        if params['is_patient_away']:
-            is_patient_away = "true" 
-        else:
-            is_patient_away = "false"
-        print(is_patient_away,file=sys.stderr)
+        try:
+            user_id = params['id']
+            if params['is_patient_away']:
+                is_patient_away = "true"
+            else:
+                is_patient_away = "false"
+        except KeyError as e:
+            print(e, file=sys.stderr)
+            return "Failed to update if patient is away from home"
+        print(is_patient_away, file=sys.stderr)
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
@@ -102,8 +115,9 @@ def update_patient_away():
 def address_request():
     return render_template("daum.html")
 
+
 # for signup with userinfo DB
-@app.route('/signup',methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def signup():
     if(request.is_json):
         user_my_db = DatabaseManager.instance()
@@ -111,25 +125,30 @@ def signup():
         user_my_db.get_cursor()
         
         params = request.get_json()
-        id = params['id']
-        name = params['name']
-        phone = params['phone']
-        pw = params['pw']
+        try:
+            id = params['id']
+            name = params['name']
+            phone = params['phone']
+            pw = params['pw']
 
-        patient_id = params['patient']
-        latitude = params['selected_latitude']
-        longitude = params['selected_longitude']
-        patient_range = params['range']
+            patient_id = params['patient']
+            latitude = params['selected_latitude']
+            longitude = params['selected_longitude']
+            patient_range = params['range']
+        except KeyError as e:
+            print(e, file=sys.stderr)
+            return "failed"
         field = ["id","pw","name","phone","patient_name","patient_locate_latitude","patient_locate_longitude","patient_range"]
 
-        
         user_my_db.insert_with_specific_field(id,pw,name,phone,patient_id,latitude,longitude,patient_range,
                                             table_name="parent_user", field_name = field
                                             )
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return 'success'
     return 'failed'
-@app.route('/login',methods=['POST'])
+
+
+@app.route('/login', methods=['POST'])
 def login():
     if(request.is_json):
         user_my_db = DatabaseManager.instance()
@@ -137,9 +156,13 @@ def login():
         user_my_db.get_cursor()
 
         params = request.get_json()
-        login_id = params['id']
-        pw = params['pw']
-        result = user_my_db.get_login_info(login_id=login_id,pw=pw,table_name="parent_user")
+        try:
+            login_id = params['id']
+            pw = params['pw']
+        except KeyError as e:
+            print(e, file=sys.stderr)
+            return "failed"
+        result = user_my_db.get_login_info(login_id=login_id, pw=pw, table_name="parent_user")
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
 #        return result
 #        print(result)
@@ -157,7 +180,8 @@ def login():
             print('asdddddd', return_result)
             return json.dumps(return_result)
 
-@app.route('/update-locate',methods=['POST'])   
+
+@app.route('/update-locate', methods=['POST'])
 def update_locate():
     if(request.is_json):
         print("asdasd")
@@ -165,10 +189,14 @@ def update_locate():
         user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
         user_my_db.get_cursor()
         params = request.get_json()
-        user_id = params['id'] 
-        latitude = params['selected_latitude']
-        longitude = params['selected_longitude']
-        patient_range = params['range']
+        try:
+            user_id = params['id']
+            latitude = params['selected_latitude']
+            longitude = params['selected_longitude']
+            patient_range = params['range']
+        except KeyError as e:
+            print(e, file=sys.stderr)
+            return "failed"
         user_my_db.get_update_locate(user_id=user_id,latitude=latitude,longitude=longitude,patient_range=patient_range,table_name="parent_user")
         user_my_db.close_connection(DatabaseManager.DB_USER_DATA)
         return "success"
