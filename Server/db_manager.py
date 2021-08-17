@@ -92,7 +92,7 @@ class DatabaseManager(SingletonInstance):
         query = f"""
         UPDATE {table_name} 
         SET {set_str}
-        WHERE {finding_column} = '{match_keyword}';
+        WHERE {finding_column} = {match_keyword};
         """
         print(query, file=sys.stderr)
         self.cursor.execute(query)
