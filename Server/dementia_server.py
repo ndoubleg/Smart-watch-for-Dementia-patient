@@ -74,15 +74,18 @@ def query_patient_location():
 @app.route('/update-away', methods=['POST'])
 def update_patient_away():
     if request.is_json:
+        
         params = request.get_json()
         user_id = params['id']
         if params['is_patient_away']:
-            is_patient_away = "true"
+            is_patient_away = "true" 
         else:
             is_patient_away = "false"
+        print(is_patient_away,file=sys.stderr)
         my_db = DatabaseManager().instance()
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
+
         my_db.update_row_matches(
             is_patient_away=is_patient_away,
             match_keyword=user_id,
