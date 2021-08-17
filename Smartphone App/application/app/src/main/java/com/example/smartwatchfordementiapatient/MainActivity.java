@@ -87,9 +87,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(),"logout",Toast.LENGTH_SHORT).show();
                 SharedPreference.removeAll(getApplicationContext());
-                finish();
+
                 android.os.Process.killProcess(android.os.Process.myPid()); //kill the Realservice process either
 
+
+                finish();
 
 
             }
