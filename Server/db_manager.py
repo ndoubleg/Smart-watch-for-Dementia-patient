@@ -83,11 +83,11 @@ class DatabaseManager(SingletonInstance):
         self.connection.commit()
 
     def update_row_matches(self, match_keyword, finding_column, table_name, **update_values):
-        """Fetch all records with 'filter_keyword' inside 'column_name' """
+#        """Fetch all records with 'filter_keyword' inside 'column_name' """
         set_str = ""
         print(update_values, file=sys.stderr)
         for key, val in update_values.items():
-            set_str += f"{key} = {val}, "
+            set_str += f'{key} = "{val}", '
         set_str = set_str.rstrip(", ")
         query = f"""
         UPDATE {table_name} 
