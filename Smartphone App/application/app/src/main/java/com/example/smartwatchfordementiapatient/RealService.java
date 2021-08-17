@@ -109,12 +109,12 @@ import java.util.Locale;
 //http://13.125.120.0:5000/update-away
 
 public class RealService extends Service {
-    private Thread mainThread;
+    public static Thread mainThread;
     private boolean patient_in = true;
     private boolean patient_out = false;
     public static Intent serviceIntent = null;
     JSONObject json_id = new JSONObject();
-
+    public static boolean run = true;
     public RealService() {
     }
     @Override
@@ -125,7 +125,7 @@ public class RealService extends Service {
             @Override
             public void run() {
                 SimpleDateFormat sdf = new SimpleDateFormat("aa hh:mm");
-                boolean run = true;
+                run = true;
                 while (run) {
                     try {
                         connectAPI();
@@ -143,7 +143,7 @@ public class RealService extends Service {
     }
 
     @Override
-    public void onDestroy() { // 스레드 종료
+    public void onDestroy() { // thread stop
         super.onDestroy();
 
         serviceIntent = null;
@@ -360,7 +360,7 @@ public class RealService extends Service {
         locationB.setLatitude(lat);
         locationB.setLongitude(lng);
 
-        if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
+        if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))&&patient_in){
             sendNotification("WARNING");
         }
         if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
