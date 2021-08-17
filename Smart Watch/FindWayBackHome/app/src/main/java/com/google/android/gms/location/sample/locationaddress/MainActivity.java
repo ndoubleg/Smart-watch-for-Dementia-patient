@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     boolean nav_on = false;
-    boolean patient_in = true;
+    boolean patient_away = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -244,17 +244,19 @@ public class MainActivity extends AppCompatActivity {
                 home.setLatitude(Double.parseDouble(latitude));
                 home.setLongitude(Double.parseDouble(longitude));
 
-                if(jsonObject.getString("is_patient_away") == "false") {
-                    
+                if(jsonObject.getString("is_patient_away").equals("false")) {
+                    patient_away = false;
+                }
+                else if(jsonObject.getString("is_patient_away").equals("true")) {
+                    patient_away = true;
                 }
 
-                if(!nav_on && !patient_in) {
+                if(!nav_on && patient_away) {
                     setNavigation();
                 }
-                if(patient_in) {
+                if(!patient_away) {
                     nav_on = false;
                 }
-                setNavigation();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -265,18 +267,13 @@ public class MainActivity extends AppCompatActivity {
         String latitude = Double.toString(mLastLocation.getLatitude());
         String longitude = Double.toString(mLastLocation.getLongitude());
 
-//            Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-//                    Uri.parse("http://maps.google.com/maps?saddr="+latitude+","+longitude+ "&daddr="+home.getLatitude()+ ","+home.getLongitude()));
-//            startActivity(intent);
-
-        Uri navigationIntentUri = Uri.parse("google.navigation:q=" + home.getLatitude() +"," + home.getLongitude());//creating intent with latlng
-//            Uri navigationIntentUri = Uri.parse("google.navigation:q=" + "서울시 강남역");//creating intent with latlng
+        Uri navigationIntentUri = Uri.parse("google.navigation:q=" + home.getLatitude() +"," + home.getLongitude());
+        //creating intent with latlng
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, navigationIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
 
         nav_on = true;
-
     }
 
     @Override
