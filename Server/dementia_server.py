@@ -75,8 +75,11 @@ def query_patient_location():
             table_name="SmartWatch"
         )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-        result = json.dumps(location)
-        return result
+        if location:
+            result = json.dumps(location)
+            return result
+        else:
+            return "Failed to query patient's last location."
     else:
         return "Failed to query patient's last location."
 
