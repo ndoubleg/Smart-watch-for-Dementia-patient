@@ -92,10 +92,12 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
     private String search_setting="google";
 
     private RadioGroup radioGroup;
-    private RadioButton radio300;
-    private RadioButton radio500;
+//    private RadioButton radio300;
+//    private RadioButton radio500;
     private RadioButton radio1000;
+    private RadioButton radio_custom;
 
+    private EditText custom_range;
     private EditText edit_addr;
     private ImageButton search_btn;
     private Button korea_address;
@@ -126,8 +128,8 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         selected_latitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"latitude"));
         selected_longtitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"longitude"));
 
-        radio300=findViewById(R.id.radio_300);
-        radio500=findViewById(R.id.radio_500);
+//        radio300=findViewById(R.id.radio_300);
+//        radio500=findViewById(R.id.radio_500);
         radio1000=findViewById(R.id.radio_1000);
         radioGroup=findViewById(R.id.radiogroup);
         radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
@@ -240,6 +242,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                 SharedPreference.setAttribute(getApplicationContext(),"longitude",Double.toString(selected_longtitude));
                 SharedPreference.setAttribute(getApplicationContext(),"patient_range",Integer.toString(radius));
                 Toast.makeText(getApplicationContext(), "complete modify location", Toast.LENGTH_SHORT).show();
+                RealService.patient_in=true;
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -306,12 +309,12 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         mMap.addMarker(new MarkerOptions().position(seoul).title("seoul"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
-        if(radius==300){
-            radio300.setChecked(true);
-        }else if(radius==500){
-            radio500.setChecked(true);
-        }else{
+        if(radius==1000){
             radio1000.setChecked(true);
+        }else{
+            radio_custom.setChecked(true);
+            custom_range.setText(radius);
+
         }
         // 반경 1KM원
         CircleOptions circle1KM = new CircleOptions().center(seoul) //latitude & longitude of point
@@ -336,34 +339,34 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
     };
     RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener = new RadioGroup.OnCheckedChangeListener() {
         @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
-            if(i == R.id.radio_300){
-                radius=300;
-                mMap.clear();
-                MarkerOptions mOptions = new MarkerOptions();
-                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
-                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
-                        .radius(radius)      //radius unit : m
-                        .strokeWidth(0f)  //line width -> 0f = no line
-                        .fillColor(Color.parseColor("#885b9fde")); //background color
-
-                mMap.addMarker(mOptions);
-                mMap.addCircle(circle);
-                Toast.makeText(getApplicationContext(), "range: 300m", Toast.LENGTH_SHORT).show();
-
-            } else if(i == R.id.radio_500){
-                radius=500;
-                mMap.clear();
-                MarkerOptions mOptions = new MarkerOptions();
-                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
-                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
-                        .radius(radius)      //radius unit : m
-                        .strokeWidth(0f)  //line width -> 0f = no line
-                        .fillColor(Color.parseColor("#885b9fde")); //background color
-                mMap.addMarker(mOptions);
-                mMap.addCircle(circle);
-                Toast.makeText(getApplicationContext(), "range: 500m", Toast.LENGTH_SHORT).show();
-            }
-            else if(i==R.id.radio_1000){
+//            if(i == R.id.radio_300){
+//                radius=300;
+//                mMap.clear();
+//                MarkerOptions mOptions = new MarkerOptions();
+//                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+//                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+//                        .radius(radius)      //radius unit : m
+//                        .strokeWidth(0f)  //line width -> 0f = no line
+//                        .fillColor(Color.parseColor("#885b9fde")); //background color
+//
+//                mMap.addMarker(mOptions);
+//                mMap.addCircle(circle);
+//                Toast.makeText(getApplicationContext(), "range: 300m", Toast.LENGTH_SHORT).show();
+//
+//            } else if(i == R.id.radio_500){
+//                radius=500;
+//                mMap.clear();
+//                MarkerOptions mOptions = new MarkerOptions();
+//                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+//                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+//                        .radius(radius)      //radius unit : m
+//                        .strokeWidth(0f)  //line width -> 0f = no line
+//                        .fillColor(Color.parseColor("#885b9fde")); //background color
+//                mMap.addMarker(mOptions);
+//                mMap.addCircle(circle);
+//                Toast.makeText(getApplicationContext(), "range: 500m", Toast.LENGTH_SHORT).show();
+//            }
+           if(i==R.id.radio_1000){
                 radius=1000;
                 mMap.clear();
                 MarkerOptions mOptions = new MarkerOptions();
@@ -375,7 +378,23 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                 mMap.addMarker(mOptions);
                 mMap.addCircle(circle);
                 Toast.makeText(getApplicationContext(), "range: 1km", Toast.LENGTH_SHORT).show();
-            }
+            }else{
+               String range = custom_range.getText().toString();
+               if(range.getBytes().length<=0){ // trash or null in edit_text
+                   radius = 0;
+               }else{
+                   radius = Integer.parseInt(range);
+                   mMap.clear();
+                   MarkerOptions mOptions = new MarkerOptions();
+                   mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                   CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                           .radius(radius)      //radius unit : m
+                           .strokeWidth(0f)  //line width -> 0f = no line
+                           .fillColor(Color.parseColor("#885b9fde")); //background color
+                   mMap.addMarker(mOptions);
+                   mMap.addCircle(circle);
+               }
+           }
         }
     };
 

@@ -1,7 +1,10 @@
 package com.example.smartwatchfordementiapatient;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,9 +164,11 @@ public class LoginActivity extends AppCompatActivity {
 
                     Log.d("solve",SharedPreference.getAttribute(getApplicationContext(),"id"));
                     Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_SHORT).show();
+
                     Intent intent = new Intent(getApplicationContext(),MainActivity.class);
 
                     startActivity(intent);
+
                     finish();
                 }else{
                     Log.e("asdddddddd","fail");
@@ -197,5 +204,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         return info;
     }
+
 
 }

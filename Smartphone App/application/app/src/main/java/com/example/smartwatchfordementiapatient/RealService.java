@@ -2,6 +2,7 @@ package com.example.smartwatchfordementiapatient;
 
 import android.app.AlarmManager;
 import android.app.Application;
+import android.telephony.SmsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -110,8 +111,7 @@ import java.util.Locale;
 
 public class RealService extends Service {
     public static Thread mainThread;
-    private boolean patient_in = true;
-    private boolean patient_out = false;
+    public static boolean patient_in = true;
     public static Intent serviceIntent = null;
     JSONObject json_id = new JSONObject();
     public static boolean run = true;
@@ -171,15 +171,15 @@ public class RealService extends Service {
         return super.onUnbind(intent);
     }
 
-    public void showToast(final Application application, final String msg) {
-        Handler h = new Handler(application.getMainLooper());
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(application, msg, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
+//    public void showToast(final Application application, final String msg) {
+//        Handler h = new Handler(application.getMainLooper());
+//        h.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Toast.makeText(application, msg, Toast.LENGTH_LONG).show();
+//            }
+//        });
+//    }
 
     protected void setAlarmTimer() {
         final Calendar c = Calendar.getInstance();
@@ -223,22 +223,24 @@ public class RealService extends Service {
                         ArrayList<String> locate = JSONParsing(line);
                         double now_latitude_patient = Double.parseDouble(locate.get(1));
                         double now_longitude_patient = Double.parseDouble(locate.get(0));
-                        if(getDistance(now_latitude_patient,now_longitude_patient)&&patient_in){
-                            Log.e("sadffffffffffffffff","sfdaaaaaaaaaaaaaa");
+//                        Toast.makeText(getApplicationContext(),Boolean.toString(patient_in),Toast.LENGTH_SHORT).show();
+                        Log.e("countsdfsadfasdfasdfsadf",Boolean.toString(patient_in));
+                        boolean in_distance = getDistance(now_latitude_patient,now_longitude_patient);
+                        Log.e("dsafffffffffffffffffffff",Boolean.toString(in_distance));
+                        if(in_distance&&patient_in){
                             sendOutofRangeAPI();
-                        }else if(!getDistance(now_latitude_patient,now_longitude_patient)&&!patient_in){
+                        }else if(!in_distance&&!patient_in){
                             sendOutofRangeAPI();
                         }
                         LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
-//                        Log.d("locate",locate.get(0)+locate.get(1));
-                        Handler h = new Handler(getApplication().getMainLooper()); // MainActivty연결해서 UI설정
+                        Handler h = new Handler(getApplication().getMainLooper()); // connect to MainActivty and setting google map
                         h.post(new Runnable() {
                             @Override
                             public void run() {
 
                                 MainActivity.main_Map.addMarker(new MarkerOptions().position(seoul).title("patient"));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
-                                MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
+                                MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,22));
                                 MainActivity.current_address_tv.setText(getCurrentAddressforPatient(now_latitude_patient,now_longitude_patient));
                                 MainActivity.current_latitude.setText(Double.toString(now_latitude_patient));
                                 MainActivity.current_longitude.setText(Double.toString(now_longitude_patient));
@@ -255,25 +257,34 @@ public class RealService extends Service {
             Log.e("wrong",String.valueOf(e));
         }
     }
+
     //when patient is out of range
     private void sendOutofRangeAPI(){
         try{
-
+            Log.e("afsdgkhdsafgkdsjfhgkjsdfhgjkhsdfjkghdsflg","Sadfjasdlfhklasdfjkhsadkf");
             URL url = new URL("http://13.125.120.0:5000/update-away");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             if(urlConnection != null) {
-                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setConnectTimeout(10000); // wait until 10seconds
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/json");
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
-                urlConnection.setDoOutput(true); // 데이터 전송
+                urlConnection.setDoOutput(true); // push data
                 if(patient_in){//patient is out of range
                     json_id.put("is_patient_away",true);
                     patient_in=false;
+                    SmsManager sms = SmsManager.getDefault();
+                    String message = "you moved out of range Please return to home";
+                    sms.sendTextMessage(SharedPreference.getAttribute(getApplicationContext(),"phone"), null, message, null, null);
+
                 }else{
                     json_id.put("is_patient_away",false);
                     patient_in=true;
+//                    SmsManager sms = SmsManager.getDefault();
+//                    String message = "patient : "+SharedPreference.getAttribute(getApplicationContext(),"name") + "back to safety range";
+//                    sms.sendTextMessage(SharedPreference.getAttribute(getApplicationContext(),"phone"), null, message, null,null);
+
                 }
                 json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
                 Log.e("I'm in",json_id.toString());
@@ -363,6 +374,7 @@ public class RealService extends Service {
         if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))&&patient_in){
             sendNotification("WARNING");
         }
+        Log.e("locationsdfasdfsadfsdaf",SharedPreference.getAttribute(getApplicationContext(),"patient_range"));
         if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
             return true;
         }else{

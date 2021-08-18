@@ -3,15 +3,21 @@ package com.example.smartwatchfordementiapatient;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,14 +54,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DrawerLayout drawer_layout;
     private ImageButton menu_btn;
     private Intent serviceIntent;
-
+    static final int SMS_RECEIVE_PERMISSON=1;
     private Button logout_btn;
+    SmsManager sms = SmsManager.getDefault();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("Main",SharedPreference.getAttribute(getApplicationContext(),"id"));
+
+
+
+
+
+//        Log.d("Main",SharedPreference.getAttribute(getApplicationContext(),"id"));
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(POWER_SERVICE);
 
         //google map initial setting
@@ -138,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
+
+
+
 
 
 
