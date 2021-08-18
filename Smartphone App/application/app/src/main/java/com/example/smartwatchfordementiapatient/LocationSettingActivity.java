@@ -86,11 +86,17 @@ class LocationUpdate extends Thread {
 
 public class LocationSettingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private int radius=1000; // patinet_range
+
+    private EditText radius_et;
+    private Button radius_ok_btn;
+    private TextView radius_result;
     private RadioGroup search_radioGroup;
     private RadioButton google;
     private RadioButton daum;
     private String search_setting="google";
 
+    private String range_unit="m";
     private RadioGroup radioGroup;
     private RadioButton radio300;
     private RadioButton radio500;
@@ -104,7 +110,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
     private GoogleMap mMap;
     private Button complete_btn;
     private Button cancel_btn;
-    private int radius; // patinet_range
+
     private double selected_latitude;
     private double selected_longtitude;
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
@@ -126,11 +132,42 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         selected_latitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"latitude"));
         selected_longtitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"longitude"));
 
+
+        radius_et=findViewById(R.id.range_et); //범위 입력받기
+        radius_result=findViewById(R.id.range_tv); //입력받은 범위
         radio300=findViewById(R.id.radio_300);
         radio500=findViewById(R.id.radio_500);
-        radio1000=findViewById(R.id.radio_1000);
         radioGroup=findViewById(R.id.radiogroup);
         radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
+
+        radius_ok_btn=findViewById(R.id.ok_btn);
+        radius_ok_btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                radius=Integer.parseInt(radius_et.getText().toString());
+                radius_result.setText("Range: "+radius+range_unit);
+
+                if(range_unit=="km"){
+                    radius*=1000; //km일때 m단위로 변환 -> 구글맵 기준
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(selected_latitude, selected_longtitude),13));
+                }
+                else{
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(selected_latitude, selected_longtitude),14));
+                }
+
+                mMap.clear();
+                MarkerOptions mOptions = new MarkerOptions();
+                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
+                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
+                        .radius(radius)      //radius unit : m
+                        .strokeWidth(0f)  //line width -> 0f = no line
+                        .fillColor(Color.parseColor("#885b9fde")); //background color
+
+                mMap.addMarker(mOptions);
+                mMap.addCircle(circle);
+
+            }
+        });
 
         edit_addr = findViewById(R.id.address_search_et);
         search_btn = findViewById(R.id.search_btn);
@@ -290,7 +327,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
 
                 // 반경 1KM원
                 CircleOptions circle1KM = new CircleOptions().center(new LatLng(latitude, longitude)) //latitude & longitude of point
-                        .radius(1000)      //radius unit : m
+                        .radius(radius)      //radius unit : m
                         .strokeWidth(0f)  //line width -> 0f = no line
                         .fillColor(Color.parseColor("#885b9fde")); //background color
 
@@ -306,16 +343,9 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         mMap.addMarker(new MarkerOptions().position(seoul).title("seoul"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
-        if(radius==300){
-            radio300.setChecked(true);
-        }else if(radius==500){
-            radio500.setChecked(true);
-        }else{
-            radio1000.setChecked(true);
-        }
         // 반경 1KM원
         CircleOptions circle1KM = new CircleOptions().center(seoul) //latitude & longitude of point
-//                .radius(radius)      //radius unit : m
+                .radius(radius)      //radius unit : m
                 .strokeWidth(0f)  //line width -> 0f = no line
                 .fillColor(Color.parseColor("#885b9fde")); //background color
 
@@ -337,44 +367,12 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
     RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener = new RadioGroup.OnCheckedChangeListener() {
         @Override public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
             if(i == R.id.radio_300){
-                radius=300;
-                mMap.clear();
-                MarkerOptions mOptions = new MarkerOptions();
-                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
-                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
-                        .radius(radius)      //radius unit : m
-                        .strokeWidth(0f)  //line width -> 0f = no line
-                        .fillColor(Color.parseColor("#885b9fde")); //background color
-
-                mMap.addMarker(mOptions);
-                mMap.addCircle(circle);
-                Toast.makeText(getApplicationContext(), "range: 300m", Toast.LENGTH_SHORT).show();
+                //m
+                range_unit="m";
 
             } else if(i == R.id.radio_500){
-                radius=500;
-                mMap.clear();
-                MarkerOptions mOptions = new MarkerOptions();
-                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
-                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
-                        .radius(radius)      //radius unit : m
-                        .strokeWidth(0f)  //line width -> 0f = no line
-                        .fillColor(Color.parseColor("#885b9fde")); //background color
-                mMap.addMarker(mOptions);
-                mMap.addCircle(circle);
-                Toast.makeText(getApplicationContext(), "range: 500m", Toast.LENGTH_SHORT).show();
-            }
-            else if(i==R.id.radio_1000){
-                radius=1000;
-                mMap.clear();
-                MarkerOptions mOptions = new MarkerOptions();
-                mOptions.position(new LatLng(selected_latitude, selected_longtitude));
-                CircleOptions circle = new CircleOptions().center(new LatLng(selected_latitude, selected_longtitude)) //latitude & longitude of point
-                        .radius(radius)      //radius unit : m
-                        .strokeWidth(0f)  //line width -> 0f = no line
-                        .fillColor(Color.parseColor("#885b9fde")); //background color
-                mMap.addMarker(mOptions);
-                mMap.addCircle(circle);
-                Toast.makeText(getApplicationContext(), "range: 1km", Toast.LENGTH_SHORT).show();
+                //km
+                range_unit="km";
             }
         }
     };
