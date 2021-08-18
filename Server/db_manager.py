@@ -13,13 +13,17 @@ class DatabaseManager(SingletonInstance):
     DB_CREDENTIALS = "credentials"
     DB_WATCH_DATA = "watch_data"
     DB_USER_DATA = "userinfo"
+    inuse = False
 
     def create_connection(self, database):
         """ Create connection with database """
+        while self.inuse:
+            pass
         try:
             print(f"Connecting to database : {database} ...", file=sys.stderr)
             self.connection = pymysql.connect(user="ubuntu", password='', database=database)
             print(f"Successfully connected to database : {database}", file=sys.stderr)
+            self.inuse = True
         except pymysql.Error:
             traceback.print_exc(file=sys.stderr)
 
@@ -31,6 +35,7 @@ class DatabaseManager(SingletonInstance):
         """ Close connection to database """
         if self.connection is not None:
             self.connection.close()
+            self.inuse = False
             print(f"Succesfully closed database : {database}", file=sys.stderr)
 
     def select_last_element_matches(self, *selecting_columns, match_keyword, finding_column, table_name):
