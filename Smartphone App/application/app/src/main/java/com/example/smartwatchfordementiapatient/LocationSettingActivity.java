@@ -125,12 +125,19 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         google=findViewById(R.id.google_radio);
         daum=findViewById(R.id.daum_radio);
         radius = Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"));
+        Log.e("radiusdasdas",Integer.toString(radius));
+
         selected_latitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"latitude"));
         selected_longtitude=Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"longitude"));
 
 //        radio300=findViewById(R.id.radio_300);
 //        radio500=findViewById(R.id.radio_500);
         radio1000=findViewById(R.id.radio_1000);
+        radio_custom=findViewById(R.id.radio_custom);
+        custom_range=findViewById(R.id.custom_range);
+        if(radius!=1000){
+            custom_range.setText(radius);
+        }
         radioGroup=findViewById(R.id.radiogroup);
         radioGroup.setOnCheckedChangeListener(radioGroupButtonChangeListener);
 
@@ -169,7 +176,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                             e.printStackTrace();
                             Log.e("test", "입출력 오류 - 주소변환시 에러발생");
                         }
-                        Toast.makeText(getApplicationContext(), Integer.toString(list.size()), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getApplicationContext(), Integer.toString(list.size()), Toast.LENGTH_SHORT).show();
                         if (list != null) {
                             if (list.size() == 0) {
                                 tv.setText("No Adress information");
@@ -313,7 +320,8 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
             radio1000.setChecked(true);
         }else{
             radio_custom.setChecked(true);
-            custom_range.setText(radius);
+            Log.e("sdaffffffffff",Integer.toString(radius));
+            custom_range.setText(Integer.toString(radius));
 
         }
         // 반경 1KM원

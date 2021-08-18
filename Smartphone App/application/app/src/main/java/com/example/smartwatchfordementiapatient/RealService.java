@@ -237,7 +237,7 @@ public class RealService extends Service {
                         h.post(new Runnable() {
                             @Override
                             public void run() {
-
+                                MainActivity.main_Map.clear();
                                 MainActivity.main_Map.addMarker(new MarkerOptions().position(seoul).title("patient"));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
                                 MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,22));
