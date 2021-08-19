@@ -32,4 +32,4 @@ Project 15  - IoT for Disabilities Assistance
   
  
  
-* IEEE paper : <https://onedrive.live.com/edit.aspx?resid=64365C80C556BBCD!104&ithint=file%2cdocx&authkey=!AC6bND7i-Lv8woE>
+* IEEE paper : <https://www.overleaf.com/read/rmtzmgkbszcc>
