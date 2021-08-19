@@ -1,5 +1,5 @@
 package com.example.smartwatchfordementiapatient;
-
+// This page for changing patient safe locate
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -48,12 +48,12 @@ class LocationUpdate extends Thread {
             URL url = new URL("http://13.125.120.0:5000/update-locate");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             if(urlConnection != null) {
-                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setConnectTimeout(10000);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/json");
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
-                urlConnection.setDoOutput(true); // 데이터 전송
+                urlConnection.setDoOutput(true);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
                 bw.write(LocationSettingActivity.jsonb.toString());
                 Log.e("확인",LocationSettingActivity.jsonb.toString());
@@ -69,7 +69,44 @@ class LocationUpdate extends Thread {
                         line = reader.readLine();
                         if(line == null)
                             break;
-                        Log.d("asdddddddddddd",line);
+                    }
+                    reader.close();
+                }
+                urlConnection.disconnect();
+                sendOutofRangeAPI();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("wrong",String.valueOf(e));
+        }
+    }
+
+    //when patient is out of range
+    // send patient is out or back to smart watch
+    private void sendOutofRangeAPI(){
+        try{
+            URL url = new URL("http://13.125.120.0:5000/update-away");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            if(urlConnection != null) {
+                urlConnection.setConnectTimeout(10000); // wait until 10seconds
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setDoInput(true);
+                urlConnection.setChunkedStreamingMode(0);
+                urlConnection.setDoOutput(true); // push data
+
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+                bw.write(LocationSettingActivity.jsonb.toString()); // input data
+                bw.flush();
+                bw.close();
+                int resCode = urlConnection.getResponseCode();
+                if(resCode == HttpURLConnection.HTTP_OK){
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    String line = null;
+                    while(true){
+                        line = reader.readLine();
+                        if(line == null)
+                            break;
                     }
                     reader.close();
                 }
@@ -80,6 +117,7 @@ class LocationUpdate extends Thread {
             Log.e("wrong",String.valueOf(e));
         }
     }
+
 }
 
 
@@ -149,7 +187,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                 radius_result.setText("Range: "+radius+range_unit);
 
                 if(range_unit=="km"){
-                    radius*=1000; //km일때 m단위로 변환 -> 구글맵 기준
+                    radius*=1000;
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(selected_latitude, selected_longtitude),13));
                 }
                 else{
@@ -191,7 +229,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         search_btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                if(search_setting=="google"){ //구글 주소 검색
+                if(search_setting=="google"){ //search with google map
                     List<Address> list = null;
                     String str = edit_addr.getText().toString();
                     TextView tv = findViewById(R.id.address_tv);
@@ -203,9 +241,8 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                             Log.e("test", Integer.toString(list.size()));
                         } catch (IOException e) {
                             e.printStackTrace();
-                            Log.e("test", "입출력 오류 - 주소변환시 에러발생");
+
                         }
-                        Toast.makeText(getApplicationContext(), Integer.toString(list.size()), Toast.LENGTH_SHORT).show();
                         if (list != null) {
                             if (list.size() == 0) {
                                 tv.setText("No Adress information");
@@ -226,20 +263,18 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
 
                         }
                     }
-                }else{ //다음 주소 검색
-                    Log.i("주소설정페이지", "주소입력창 클릭");
+                }else{ //search with daum address api
                     int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
                     if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
 
-                        Log.i("주소설정페이지", "주소입력창 클릭");
                         Intent i = new Intent(getApplicationContext(), AddressApiActivity.class);
-                        // 화면전환 애니메이션 없애기
+                        // erase animation
                         overridePendingTransition(0, 0);
-                        // 주소결과
+                        // result
                         startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
 
                     }else {
-                        Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Check network connection.", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -262,6 +297,9 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                     jsonb.put("selected_latitude",selected_latitude);
                     jsonb.put("selected_longitude",selected_longtitude);
                     jsonb.put("range",radius);
+                    jsonb.put("is_patient_away",false);
+//                    jsonb.put("is_patient_away",false);
+
                     LocationUpdate thread = new LocationUpdate();
                     thread.start();
                 }catch (Exception e){
@@ -278,6 +316,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                 SharedPreference.setAttribute(getApplicationContext(),"longitude",Double.toString(selected_longtitude));
                 SharedPreference.setAttribute(getApplicationContext(),"patient_range",Integer.toString(radius));
                 Toast.makeText(getApplicationContext(), "complete modify location", Toast.LENGTH_SHORT).show();
+                RealService.patient_in = true;
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -313,20 +352,20 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                 mOptions.title("");
                 mMap.clear();
 
-                Double latitude = point.latitude; // 위도
-                Double longitude = point.longitude; // 경도
+                Double latitude = point.latitude; // latitude
+                Double longitude = point.longitude; // longitude
                 selected_latitude=latitude;
                 selected_longtitude=longitude;
                 //change location -> address
                 String addr=getCurrentAddress(selected_latitude,selected_longtitude);
                 address_tv.setText(addr);
 
-                // 마커의 스니펫(간단한 텍스트) 설정
+                // setting marker
                 mOptions.snippet(latitude + ", " + longitude);
-                // LatLng: 위도 경도 쌍을 나타냄
+                // LatLng: pair of(latitude, longitude)
                 mOptions.position(new LatLng(latitude, longitude));
 
-                // 반경 1KM원
+                // range 1km
                 CircleOptions circle1KM = new CircleOptions().center(new LatLng(latitude, longitude)) //latitude & longitude of point
                         .radius(radius)      //radius unit : m
                         .strokeWidth(0f)  //line width -> 0f = no line
@@ -344,7 +383,6 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         mMap.addMarker(new MarkerOptions().position(seoul).title("seoul"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
-        // 반경 1KM원
         CircleOptions circle1KM = new CircleOptions().center(seoul) //latitude & longitude of point
                 .radius(radius)      //radius unit : m
                 .strokeWidth(0f)  //line width -> 0f = no line
@@ -381,8 +419,6 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
     //geocoder : longtitude, latitude <-> address
     public String getCurrentAddress( double latitude, double longitude) {
 
-        //지오코더
-        // GPS를 주소로 변환
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         List<Address> addresses;
@@ -390,14 +426,12 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 7);
         } catch (IOException ioException) {
-            //네트워크 문제
+            //net work error
             return "geocorder not service";
         } catch (IllegalArgumentException illegalArgumentException) {
-            //Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "wrong gps location";
         }
         if (addresses == null || addresses.size() == 0) {
-            //Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "couldn't search address";
         }
 
@@ -414,7 +448,7 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                 Geocoder geocoder = new Geocoder(this);
                 if (resultCode == RESULT_OK) {
                     String address = data.getExtras().getString("data");
-                    if (address != null) { // 주소 존재
+                    if (address != null) {
                         Log.i("test", "data:" + address);
                         edit_addr.setText(address);
                         List<Address> list = null;
@@ -427,7 +461,6 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                             Log.e("test",Integer.toString(list.size()));
                         }catch (IOException e){
                             e.printStackTrace();
-                            Log.e("test","입출력 오류 - 주소변환시 에러발생");
                         }
                         Toast.makeText(getApplicationContext(),Integer.toString(list.size()),Toast.LENGTH_SHORT).show();
                         if(list!=null) {
@@ -474,7 +507,6 @@ public class LocationSettingActivity extends AppCompatActivity implements OnMapR
                             Log.e("test",Integer.toString(list.size()));
                         }catch (IOException e){
                             e.printStackTrace();
-                            Log.e("test","입출력 오류 - 주소변환시 에러발생");
                         }
                         //Toast.makeText(getApplicationContext(),Integer.toString(list.size()),Toast.LENGTH_SHORT).show();
                         if(list!=null) {

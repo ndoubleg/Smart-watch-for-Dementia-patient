@@ -1,5 +1,5 @@
 package com.example.smartwatchfordementiapatient;
-
+// this is login page
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,27 +40,22 @@ class LoginThread extends Thread {
             URL url = new URL("http://13.125.120.0:5000/login");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             if(urlConnection != null) {
-                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setConnectTimeout(10000);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/json");
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
-                urlConnection.setDoOutput(true); // 데이터 전송
+                urlConnection.setDoOutput(true);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
-                bw.write(LoginActivity.jsonb.toString()); // 데이터 삽입
+                bw.write(LoginActivity.jsonb.toString()); // input data(format json)
 
-                Log.e("확인",LoginActivity.jsonb.toString());
                 bw.flush();
                 bw.close();
-                Log.e("dsfdsf","asdfffff");
-                //서버 내용 수신 받기
                 int resCode = urlConnection.getResponseCode();
-                Log.e("dsafsdf",Integer.toString(resCode));
                 if(resCode == HttpURLConnection.HTTP_OK){
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     String line = null;
                     while(true){
-                        Log.e("asddd","adsssssssss");
                         line = reader.readLine();
                         if(line==null){
                             break;
@@ -71,8 +66,6 @@ class LoginThread extends Thread {
                         }else{
                             LoginActivity.userdata = LoginActivity.JSONParsing(line);
                             LoginActivity.LOGIN_SUCCESS=1;
-//                            Toast.makeText(login, "로그인 실패", Toast.LENGTH_SHORT).show();
-                            //break;
                         }
 
                     }
@@ -82,7 +75,6 @@ class LoginThread extends Thread {
             }
         }catch(Exception e){
             e.printStackTrace();
-            Log.e("wrong",String.valueOf(e));
         }
     }
 }
@@ -95,7 +87,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button login_btn;
     private Button signin_btn;
     private TextView signup;
-    private SharedPreferences save_data;
     public static JSONObject jsonb;
     public static int LOGIN_SUCCESS;
     public static ArrayList<String> userdata; // for userdata save
@@ -109,8 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         username_et=findViewById(R.id.login_id_et);
         password_et=findViewById(R.id.login_pw_et);
         login_btn=findViewById(R.id.login_bt);
-        // 이 앱에서만 사용
-        save_data = getSharedPreferences("UserInfo",MODE_PRIVATE);
+
         //click the signup
         signup.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -146,15 +136,8 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e("asdddddd",Integer.toString(LOGIN_SUCCESS));
                 if(LoginActivity.LOGIN_SUCCESS==1){
                     Log.e("asdddddddd","success");
-//                    SharedPreferences.Editor editor = save_data.edit();//입력 요청
 
-//                    editor.putString("id",LoginActivity.userdata.get(0));
-//                    editor.putString("name",LoginActivity.userdata.get(1));
-//                    editor.putString("phone",LoginActivity.userdata.get(2));
-//                    editor.putString("latitude",LoginActivity.userdata.get(3));
-//                    editor.putString("longitude",LoginActivity.userdata.get(4));
-//                    editor.putString("patient_range",LoginActivity.userdata.get(5));
-//
+                    // input some datas in this app.
                     SharedPreference.setAttribute(getApplicationContext(),"id",LoginActivity.userdata.get(0));
                     SharedPreference.setAttribute(getApplicationContext(),"name",LoginActivity.userdata.get(1));
                     SharedPreference.setAttribute(getApplicationContext(),"phone",LoginActivity.userdata.get(2));
@@ -175,17 +158,11 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"FAIL",Toast.LENGTH_SHORT).show();
                 }
 
-
-//                Toast.makeText(getApplicationContext(), "success log in", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(getApplicationContext(), LocationRegisterActivity.class);
-//                startActivity(intent);
-//                finish();
-
             }
         });
 
     }
-
+    //Do jsonparsing
     public static ArrayList<String> JSONParsing(String jsonstring){
         StringBuilder stringBuilder = new StringBuilder();
         ArrayList<String> info = new ArrayList<>();

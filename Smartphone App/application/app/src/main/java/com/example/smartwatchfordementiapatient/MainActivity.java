@@ -1,5 +1,5 @@
 package com.example.smartwatchfordementiapatient;
-
+// It shows patient's lcoate
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -63,11 +63,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
-
-
-//        Log.d("Main",SharedPreference.getAttribute(getApplicationContext(),"id"));
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(POWER_SERVICE);
 
         //google map initial setting
@@ -154,8 +149,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-
-
     //google map setting
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -169,8 +162,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //geocoder : longtitude, latitude <-> address
     public String getCurrentAddressforPatient( double latitude, double longitude) {
 
-        //지오코더
-        // GPS를 주소로 변환
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         List<Address> addresses;
@@ -178,21 +169,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 7);
         } catch (IOException ioException) {
-            //네트워크 문제w
+            //network error
             return "geocorder not service";
         } catch (IllegalArgumentException illegalArgumentException) {
-            //Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "wrong gps location";
         }
         if (addresses == null || addresses.size() == 0) {
-            //Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "couldn't search address";
         }
 
         Address address = addresses.get(0);
         String addr=address.getAddressLine(0);
-//        addr=addr.substring(4);
-        //return address.getAddressLine(0).toString()+"\n";
         return addr;
     }
     @Override

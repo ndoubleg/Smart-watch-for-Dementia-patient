@@ -25,6 +25,7 @@ public class SharedPreference {
         editor.remove(key);
         editor.commit();
     }
+    //remove all data
     public static void removeAll(Context context){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = pref.edit();

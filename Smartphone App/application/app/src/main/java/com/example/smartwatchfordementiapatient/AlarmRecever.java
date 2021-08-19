@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-
+// Rerun RealService class when it is dead
 public class AlarmRecever extends BroadcastReceiver {
 
     @Override

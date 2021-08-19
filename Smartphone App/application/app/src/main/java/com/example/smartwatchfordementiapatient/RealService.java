@@ -1,4 +1,9 @@
 package com.example.smartwatchfordementiapatient;
+// This page will work in Background either
+// It'll continuously get Patient's locate and show it on google map.
+// It'll not die easily
+// It checks whether patient goes out safe range or not
+// If patient goes out safe range, then push alarm to guardian and send message to patient
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -45,76 +50,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-//Thread 생성 하나더
-//class GetLocate extends Thread {
-//    @Override
-//    public void run() {
-//        try{
-//
-//            URL url = new URL("http://13.125.120.0:5000/query-location");
-//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//            if(urlConnection != null) {
-//                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
-//                urlConnection.setRequestMethod("POST");
-//                urlConnection.setRequestProperty("Content-Type", "application/json");
-//                urlConnection.setDoInput(true);
-//                urlConnection.setChunkedStreamingMode(0);
-//                urlConnection.setDoOutput(true); // 데이터 전송
-//                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
-//                bw.write(json_id.toString()); // 데이터 삽입
-//                bw.flush();
-//                bw.close();
-//
-//                //서버 내용 수신 받기
-//                int resCode = urlConnection.getResponseCode();
-//                if(resCode == HttpURLConnection.HTTP_OK){
-//                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-//                    String line = null;
-//                    while(true){
-//                        line = reader.readLine();
-//                        if(line == null)
-//                            break;
-//                        Log.d("asdddddddddddd",line);
-//                        ArrayList<String> locate = JSONParsing(line);
-//                        double now_latitude_patient = Double.parseDouble(locate.get(1));
-//                        double now_longitude_patient = Double.parseDouble(locate.get(0));
-//                        getDistance(now_latitude_patient,now_longitude_patient);
-//                        LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
-////                        Log.d("locate",locate.get(0)+locate.get(1));
-//                        Handler h = new Handler(getApplication().getMainLooper()); // MainActivty연결해서 UI설정
-//                        h.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//
-//                                MainActivity.main_Map.addMarker(new MarkerOptions().position(seoul).title("patient"));
-//                                MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLng(seoul));
-//                                MainActivity.main_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,14));
-//                                MainActivity.current_address_tv.setText(getCurrentAddressforPatient(now_latitude_patient,now_longitude_patient));
-//                                MainActivity.current_latitude.setText(Double.toString(now_latitude_patient));
-//                                MainActivity.current_longitude.setText(Double.toString(now_longitude_patient));
-//                            }
-//                        });
-//
-//                    }
-//                    reader.close();
-//                }
-//                urlConnection.disconnect();
-//            }
-//        }catch(Exception e){
-//            e.printStackTrace();
-//            Log.e("wrong",String.valueOf(e));
-//        }
-//    }
-//}
-
-//http://13.125.120.0:5000/update-away
-
 public class RealService extends Service {
     public static Thread mainThread;
     public static boolean patient_in = true;
     public static Intent serviceIntent = null;
     JSONObject json_id = new JSONObject();
-    public static boolean run = true;
+    private boolean run = true;
     public RealService() {
     }
     @Override
@@ -129,7 +70,7 @@ public class RealService extends Service {
                 while (run) {
                     try {
                         connectAPI();
-                        Thread.sleep(1000 * 15 * 1); // for wait server
+                        Thread.sleep(1000 * 13 * 1); // for wait server
                     } catch (InterruptedException e) {
                         run = false;
                         e.printStackTrace();
@@ -147,7 +88,7 @@ public class RealService extends Service {
         super.onDestroy();
 
         serviceIntent = null;
-        setAlarmTimer();
+        setAlarmTimer(); // we'll call this service
         Thread.currentThread().interrupt();
 
         if (mainThread != null) {
@@ -171,26 +112,17 @@ public class RealService extends Service {
         return super.onUnbind(intent);
     }
 
-//    public void showToast(final Application application, final String msg) {
-//        Handler h = new Handler(application.getMainLooper());
-//        h.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(application, msg, Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
 
     protected void setAlarmTimer() {
         final Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
-        c.add(Calendar.SECOND, 1); //RealService가 destroy될때마다 1초마다 알림
+        c.add(Calendar.SECOND, 1);
         Intent intent = new Intent(this, AlarmRecever.class);
         PendingIntent sender = PendingIntent.getBroadcast(this, 0,intent,0);
-
         AlarmManager mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         mAlarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), sender);
     }
+
     //connect to api for getting locate
     private void connectAPI(){
         try{
@@ -198,19 +130,19 @@ public class RealService extends Service {
             URL url = new URL("http://13.125.120.0:5000/query-location");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             if(urlConnection != null) {
-                urlConnection.setConnectTimeout(10000); // 10초 동안 기다린 후 응답이 없으면 종료
+                urlConnection.setConnectTimeout(10000);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/json");
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
-                urlConnection.setDoOutput(true); // 데이터 전송
+                urlConnection.setDoOutput(true);
                 json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
-                bw.write(json_id.toString()); // 데이터 삽입
+                bw.write(json_id.toString());
                 bw.flush();
                 bw.close();
 
-                //서버 내용 수신 받기
+
                 int resCode = urlConnection.getResponseCode();
                 if(resCode == HttpURLConnection.HTTP_OK){
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -219,17 +151,29 @@ public class RealService extends Service {
                         line = reader.readLine();
                         if(line == null)
                             break;
-                        Log.d("asdddddddddddd",line);
                         ArrayList<String> locate = JSONParsing(line);
                         double now_latitude_patient = Double.parseDouble(locate.get(1));
                         double now_longitude_patient = Double.parseDouble(locate.get(0));
-//                        Toast.makeText(getApplicationContext(),Boolean.toString(patient_in),Toast.LENGTH_SHORT).show();
-                        Log.e("countsdfsadfasdfasdfsadf",Boolean.toString(patient_in));
                         boolean in_distance = getDistance(now_latitude_patient,now_longitude_patient);
-                        Log.e("dsafffffffffffffffffffff",Boolean.toString(in_distance));
+                        // if this is first time that patient goes out safe range then push to guardian and send message to patient
                         if(in_distance&&patient_in){
+                            json_id.put("is_patient_away",true);
+                            patient_in=false;
+                            SmsManager sms = SmsManager.getDefault();
+                            String message = "you moved out of range Please return to home";
+                            //send message
+                            sms.sendTextMessage(SharedPreference.getAttribute(getApplicationContext(),"phone"), null, message, null, null);
+                            //send notification
+                            sendNotification("PATIENT IS BACK", "CHECK");
+//                            sendNotification("WARNING PATIENT IS OUT OF RANGE","ALERT");
+                            //send watch that patient is out of safe range
                             sendOutofRangeAPI();
+                        //if patient is back to safe range
                         }else if(!in_distance&&!patient_in){
+                            json_id.put("is_patient_away",false);
+                            patient_in=true;
+                            //push alaram to guardian
+                            sendNotification("PATIENT IS BACK", "CHECK");
                             sendOutofRangeAPI();
                         }
                         LatLng seoul = new LatLng(now_latitude_patient,now_longitude_patient);
@@ -259,9 +203,9 @@ public class RealService extends Service {
     }
 
     //when patient is out of range
+    // send patient is out or back to smart watch
     private void sendOutofRangeAPI(){
         try{
-            Log.e("afsdgkhdsafgkdsjfhgkjsdfhgjkhsdfjkghdsflg","Sadfjasdlfhklasdfjkhsadkf");
             URL url = new URL("http://13.125.120.0:5000/update-away");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             if(urlConnection != null) {
@@ -271,28 +215,12 @@ public class RealService extends Service {
                 urlConnection.setDoInput(true);
                 urlConnection.setChunkedStreamingMode(0);
                 urlConnection.setDoOutput(true); // push data
-                if(patient_in){//patient is out of range
-                    json_id.put("is_patient_away",true);
-                    patient_in=false;
-                    SmsManager sms = SmsManager.getDefault();
-                    String message = "you moved out of range Please return to home";
-                    sms.sendTextMessage(SharedPreference.getAttribute(getApplicationContext(),"phone"), null, message, null, null);
 
-                }else{
-                    json_id.put("is_patient_away",false);
-                    patient_in=true;
-//                    SmsManager sms = SmsManager.getDefault();
-//                    String message = "patient : "+SharedPreference.getAttribute(getApplicationContext(),"name") + "back to safety range";
-//                    sms.sendTextMessage(SharedPreference.getAttribute(getApplicationContext(),"phone"), null, message, null,null);
-
-                }
                 json_id.put("id", SharedPreference.getAttribute(getApplicationContext(), "id"));
-                Log.e("I'm in",json_id.toString());
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
-                bw.write(json_id.toString()); // 데이터 삽입
+                bw.write(json_id.toString()); // input data
                 bw.flush();
                 bw.close();
-                Log.e("I'm in",json_id.toString());
                 int resCode = urlConnection.getResponseCode();
                 if(resCode == HttpURLConnection.HTTP_OK){
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -301,12 +229,9 @@ public class RealService extends Service {
                         line = reader.readLine();
                         if(line == null)
                             break;
-                        Log.d("askkkkkkkkkkkkkkkkkkkkkk",line);
                     }
                     reader.close();
                 }
-
-
                 urlConnection.disconnect();
             }
         }catch(Exception e){
@@ -333,8 +258,7 @@ public class RealService extends Service {
     //geocoder : longtitude, latitude <-> address
     public String getCurrentAddressforPatient( double latitude, double longitude) {
 
-        //지오코더
-        // GPS를 주소로 변환
+        // change the gps to address
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         List<Address> addresses;
@@ -342,39 +266,27 @@ public class RealService extends Service {
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 7);
         } catch (IOException ioException) {
-            //네트워크 문제w
+            //network error
             return "geocorder not service";
         } catch (IllegalArgumentException illegalArgumentException) {
-            //Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "wrong gps location";
         }
         if (addresses == null || addresses.size() == 0) {
-            //Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "couldn't search address";
         }
 
         Address address = addresses.get(0);
         String addr=address.getAddressLine(0);
-//        addr=addr.substring(4);
-        //return address.getAddressLine(0).toString()+"\n";
         return addr;
     }
     //for distance checking
     public boolean getDistance(double lat , double lng){
-
-
         Location locationA = new Location("point A");
         locationA.setLatitude(Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"latitude")));
         locationA.setLongitude(Double.parseDouble(SharedPreference.getAttribute(getApplicationContext(),"longitude")));
-
         Location locationB = new Location("point B");
         locationB.setLatitude(lat);
         locationB.setLongitude(lng);
-
-        if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))&&patient_in){
-            sendNotification("WARNING");
-        }
-        Log.e("locationsdfasdfsadfsdaf",SharedPreference.getAttribute(getApplicationContext(),"patient_range"));
         if(locationA.distanceTo(locationB)>Integer.parseInt(SharedPreference.getAttribute(getApplicationContext(),"patient_range"))){
             return true;
         }else{
@@ -382,12 +294,8 @@ public class RealService extends Service {
         }
     }
 
-
-
-
-
     //push alaram
-    private void sendNotification(String messageBody) {
+    private void sendNotification(String messageBody, String title) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent, PendingIntent.FLAG_ONE_SHOT);
@@ -397,7 +305,7 @@ public class RealService extends Service {
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher)//drawable.splash)
-                        .setContentTitle("Service test")
+                        .setContentTitle(title)
                         .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
