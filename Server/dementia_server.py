@@ -24,7 +24,7 @@ def handle_gps_location_set():
         except KeyError as e:
             print(e, file=sys.stderr)
             return "Failed to get longitude & latitude parameters."
-        my_db = DatabaseManager().instance()
+        my_db = DatabaseManager()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
         my_db.insert_row(user_id, longitude, latitude,
@@ -65,7 +65,7 @@ def query_patient_location():
         except KeyError as e:
             print(e, file=sys.stderr)
             return "Failed to query patient's last location."
-        my_db = DatabaseManager().instance()
+        my_db = DatabaseManager()
         my_db.create_connection(DatabaseManager.DB_WATCH_DATA)
         my_db.get_cursor()
         location = my_db.select_last_element_matches(
@@ -75,8 +75,11 @@ def query_patient_location():
             table_name="SmartWatch"
         )
         my_db.close_connection(DatabaseManager.DB_WATCH_DATA)
-        result = json.dumps(location)
-        return result
+        if location:
+            result = json.dumps(location)
+            return result
+        else:
+            return "Failed to query patient's last location."
     else:
         return "Failed to query patient's last location."
 
@@ -95,7 +98,7 @@ def update_patient_away():
             print(e, file=sys.stderr)
             return "Failed to update if patient is away from home"
         print(is_patient_away, file=sys.stderr)
-        my_db = DatabaseManager().instance()
+        my_db = DatabaseManager()
         my_db.create_connection(DatabaseManager.DB_USER_DATA)
         my_db.get_cursor()
 
@@ -120,7 +123,7 @@ def address_request():
 @app.route('/signup', methods=['POST'])
 def signup():
     if(request.is_json):
-        user_my_db = DatabaseManager.instance()
+        user_my_db = DatabaseManager()
         user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
         user_my_db.get_cursor()
         
@@ -151,7 +154,7 @@ def signup():
 @app.route('/login', methods=['POST'])
 def login():
     if(request.is_json):
-        user_my_db = DatabaseManager.instance()
+        user_my_db = DatabaseManager()
         user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
         user_my_db.get_cursor()
 
@@ -185,7 +188,7 @@ def login():
 def update_locate():
     if(request.is_json):
         print("asdasd")
-        user_my_db = DatabaseManager.instance()
+        user_my_db = DatabaseManager()
         user_my_db.create_connection(DatabaseManager.DB_USER_DATA)
         user_my_db.get_cursor()
         params = request.get_json()
