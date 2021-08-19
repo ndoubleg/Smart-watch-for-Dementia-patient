@@ -133,9 +133,9 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e("error","wrong login");
                 }
-                Log.e("asdddddd",Integer.toString(LOGIN_SUCCESS));
+                Log.e("LoginActivity:login_success",Integer.toString(LOGIN_SUCCESS));
                 if(LoginActivity.LOGIN_SUCCESS==1){
-                    Log.e("asdddddddd","success");
+                    Log.e("LoginActivity:success","success");
 
                     // input some datas in this app.
                     SharedPreference.setAttribute(getApplicationContext(),"id",LoginActivity.userdata.get(0));
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     finish();
                 }else{
-                    Log.e("asdddddddd","fail");
+                    Log.e("LoginActivity:fail","fail");
                     Toast.makeText(getApplicationContext(),"FAIL",Toast.LENGTH_SHORT).show();
                 }
 
@@ -167,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         StringBuilder stringBuilder = new StringBuilder();
         ArrayList<String> info = new ArrayList<>();
         try{
-            Log.d("asdddddd",jsonstring);
+            Log.d("json_data",jsonstring);
             JSONObject jsonObject = new JSONObject(jsonstring);
 
             info.add(jsonObject.getString("id"));

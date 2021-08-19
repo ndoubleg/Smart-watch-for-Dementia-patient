@@ -79,7 +79,7 @@ class RequestThread extends Thread {
                         line = reader.readLine();
                         if(line == null)
                             break;
-                        Log.d("asdddddddddddd",line);
+                        Log.d("LocationRegisterActivity:getdata",line);
                     }
                     reader.close();
                 }

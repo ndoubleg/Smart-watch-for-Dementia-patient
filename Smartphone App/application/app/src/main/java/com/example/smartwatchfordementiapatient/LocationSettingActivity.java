@@ -56,11 +56,11 @@ class LocationUpdate extends Thread {
                 urlConnection.setDoOutput(true);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
                 bw.write(LocationSettingActivity.jsonb.toString());
-                Log.e("확인",LocationSettingActivity.jsonb.toString());
+                Log.e("check",LocationSettingActivity.jsonb.toString());
                 bw.flush();
                 bw.close();
 
-                //서버 내용 수신 받기
+                //get data from the server
                 int resCode = urlConnection.getResponseCode();
                 if(resCode == HttpURLConnection.HTTP_OK){
                     BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));

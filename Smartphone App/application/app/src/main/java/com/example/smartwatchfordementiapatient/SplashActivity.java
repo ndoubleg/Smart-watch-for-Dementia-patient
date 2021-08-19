@@ -47,7 +47,7 @@ public class SplashActivity extends AppCompatActivity {
                         // If permission Already Granted
                         // Send You SMS here
 
-                        Log.e("asddddddddddddddddd","Adsssssssssssssss");
+                        Log.e("SplashActivity:permission","sms permission");
                     }
                 }
                 else{
