@@ -7,7 +7,7 @@ Project 15  - IoT for Disabilities Assistance
 
 -----------------
 ## Project Novelty
-### Checking the patient's safety range, not just location tracking. If the dementia patient is out of safety, the system checks and notifies to carer. So carers will be able to reduce their concerns about the movement of dementia patients. 
+### Checking the patient's safety range, not just location tracking. If the dementia patient is out of safety, the system checks and notifies to guardian. So guardians will be able to reduce their concerns about the movement of dementia patients. 
 
 #### Team Members
 
