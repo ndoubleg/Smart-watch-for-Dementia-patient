@@ -47,4 +47,5 @@ Project 15  - IoT for Disabilities Assistance
  
 
  
-* IEEE paper : <https://www.overleaf.com/read/rmtzmgkbszcc>
+* IEEE paper : <https://github.com/ilovethisid/Smart-watch-for-Dementia-patient/blob/main/Safety_Monitoring_System_for_Dementia_Patients_Using_Smart_Watch.pdf>
+* IEEE paper on Overleaf : <https://www.overleaf.com/read/rmtzmgkbszcc>
