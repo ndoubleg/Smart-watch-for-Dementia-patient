@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 String longitude = jsonObject.getString("longitude");
                 home.setLatitude(Double.parseDouble(latitude));
                 home.setLongitude(Double.parseDouble(longitude));
+                // get location of patient home
 
                 if(jsonObject.getString("is_patient_away").equals("false")) {
                     patient_away = false;
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
         String longitude = Double.toString(mLastLocation.getLongitude());
 
         Uri navigationIntentUri = Uri.parse("google.navigation:q=" + home.getLatitude() +"," + home.getLongitude());
-        //creating intent with latlng
+        //creating intent with latitude & longitude
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, navigationIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
