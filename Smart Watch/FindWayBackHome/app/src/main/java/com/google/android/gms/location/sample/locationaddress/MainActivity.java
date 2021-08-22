@@ -33,7 +33,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,18 +45,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
@@ -80,6 +73,8 @@ import java.net.UnknownHostException;
  *
  * For an example that shows location updates using the Fused Location Provider API, see
  * https://github.com/googlesamples/android-play-location/tree/master/LocationUpdates.
+ *
+ * - description of sample (Getting the Location Address) in Android Studio
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -155,9 +150,10 @@ public class MainActivity extends AppCompatActivity {
         updateUIWidgets();
 
         handler.post(runnable);
+        // runs background operation
     }
 
-    void test_server() {
+    void connect_server() {
         JSONObject postData = new JSONObject();
         try {
             postData.put("latitude", Double.toString(mLastLocation.getLatitude()));
@@ -273,11 +269,6 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("Handlers", "Called on main thread");
 
-
-
-            // If we have not yet retrieved the user location, we process the user's request by setting
-            // mAddressRequested to true. As far as the user is concerned, pressing the Fetch Address button
-            // immediately kicks off the process of getting the address.
             mAddressRequested = true;
             updateUIWidgets();
         }
@@ -304,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
         mLatitudeText.invalidate();
         mLongitudeText.invalidate();
 
-        test_server();
+        connect_server();
 
         // Pass the result receiver as an extra to the service.
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
@@ -340,9 +331,6 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // If the user pressed the fetch address button before we had the location,
-                        // this will be set to true indicating that we should kick off the intent
-                        // service after fetching the location.
                         if (mAddressRequested) {
                             startIntentService();
                         }
@@ -393,9 +381,6 @@ public class MainActivity extends AppCompatActivity {
         mLocationAddressTextView.setText(mAddressOutput);
     }
 
-    /**
-     * Toggles the visibility of the progress bar. Enables or disables the Fetch Address button.
-     */
     private void updateUIWidgets() {
         if (mAddressRequested) {
             mProgressBar.setVisibility(ProgressBar.VISIBLE);
@@ -439,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
             mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
             displayAddressOutput();
 
-            // Reset. Enable the Fetch Address button and stop showing the progress bar.
             mAddressRequested = false;
             updateUIWidgets();
         }
